@@ -41,10 +41,25 @@ const Register = () => {
       showToast('Passwords do not match', 'error');
       return false;
     }
-    if (formData.password.length < 6) {
+
+    // Password validation rules
+    const hasUpperCase = /[A-Z]/.test(formData.password);
+    const hasLowerCase = /[a-z]/.test(formData.password);
+    const hasMinLength = formData.password.length >= 6;
+
+    if (!hasUpperCase) {
+      showToast('Password must contain at least one uppercase letter', 'error');
+      return false;
+    }
+    if (!hasLowerCase) {
+      showToast('Password must contain at least one lowercase letter', 'error');
+      return false;
+    }
+    if (!hasMinLength) {
       showToast('Password must be at least 6 characters long', 'error');
       return false;
     }
+
     return true;
   };
 

@@ -44,10 +44,11 @@ export const AuthProvider = ({ children }) => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      if (auth.currentUser) {
-        await updateProfile(auth.currentUser, {
+      // Update user profile in Firebase Auth
+      if (user) {
+        await updateProfile(user, {
           displayName: displayName,
-          photoURL: photoURL || auth.currentUser.photoURL
+          photoURL: photoURL
         });
       }
 

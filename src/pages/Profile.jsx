@@ -74,7 +74,15 @@ const Profile = () => {
     try {
       // Fetch user profile data
       const profileResponse = await axios.get('https://server-api-three.vercel.app/api/users/profile', { headers });
-      setProfileData(profileResponse.data.user);
+      console.log('Profile Data from backend:', profileResponse.data.user);
+      console.log('Firebase currentUser:', currentUser);
+      // Set profileData using currentUser for name/photo and backend response for bio on initial fetch
+      setProfileData(prevProfileData => ({
+        ...prevProfileData,
+        displayName: currentUser.displayName || '', // Use displayName from currentUser
+        photoURL: currentUser.photoURL || '', // Use photoURL from currentUser
+        bio: profileResponse.data.user.bio || '' // Use bio from backend response
+      }));
     } catch (error) {
       console.error('Error fetching user profile:', error);
       toast.error('Failed to fetch user profile');
@@ -152,20 +160,31 @@ const Profile = () => {
 
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
+
+    // Ensure profileData is updated with the latest formData before sending
+    // setProfileData(formData); // Remove or correct this line if it exists
+
     try {
       const response = await axios.patch(
         'https://server-api-three.vercel.app/api/users/profile',
-        profileData,
+        profileData, // Send profileData object as JSON
         {
           headers: {
-            Authorization: `Bearer ${idToken}`
+            Authorization: `Bearer ${idToken}`,
+            'Content-Type': 'application/json' // Explicitly set Content-Type
           }
         }
       );
       toast.success('Profile updated successfully');
       setIsEditing(false);
-      // Update local state with new profile data
-      setProfileData(response.data);
+      // Update local state with a new object containing latest data from the form (profileData state)
+      setProfileData(prevProfileData => ({
+         ...prevProfileData,
+         displayName: profileData.displayName, // Use latest displayName from form inputs (in profileData)
+         photoURL: profileData.photoURL, // Use latest photoURL from form inputs (in profileData)
+         bio: profileData.bio // Use latest bio from form inputs (in profileData)
+      }));
+
     } catch (error) {
       console.error('Error updating profile:', error);
       toast.error(error.response?.data?.message || 'Failed to update profile');
@@ -245,6 +264,7 @@ const Profile = () => {
       {/* Profile Header or Edit Form */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
         {profileData && (
+          
           <>
             {!isEditing ? (
               // Display Profile Info
@@ -252,7 +272,7 @@ const Profile = () => {
                 {/* Profile Picture */}
                 <div className="relative">
                   <img
-                    src={profileData.profilePhoto ? profileData.profilePhoto : 'https://via.placeholder.com/150'}
+                    src={profileData.photoURL ? currentUser.photoURL : 'https://via.placeholder.com/150'}
                     alt="Profile"
                     className="w-32 h-32 rounded-full object-cover"
                   />
@@ -267,7 +287,7 @@ const Profile = () => {
 
                 {/* Profile Info */}
                 <div className="flex-1 text-center md:text-left">
-                  <h1 className="text-3xl font-bold mb-2 text-black">{profileData.name}</h1>
+                  <h1 className="text-3xl font-bold mb-2 text-black">{profileData.displayName}</h1>
                   <p className="text-gray-600 mb-4">{profileData.bio || 'No bio yet'}</p>
                   {/* Stats - Removed inline stats, will be shown in tab content */}
                   {/* <div className="flex flex-wrap gap-4 justify-center md:justify-start">
@@ -301,7 +321,7 @@ const Profile = () => {
                     type="text"
                     id="displayName"
                     name="displayName"
-                    value={profileData.name}
+                    defaultValue={currentUser.displayName}
                     onChange={handleInputChange}
                     className="mt-1 block w-full px-3 py-2 border text-black border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
@@ -315,7 +335,7 @@ const Profile = () => {
                     type="url"
                     id="photoURL"
                     name="photoURL"
-                    value={profileData.profilePhoto}
+                    defaultValue={currentUser.photoURL}
                     onChange={handleInputChange}
                     className="mt-1 block w-full px-3 py-2 border text-black border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                     placeholder="https://example.com/profile.jpg"
@@ -334,7 +354,7 @@ const Profile = () => {
                   <textarea
                     id="bio"
                     name="bio"
-                    value={profileData.bio}
+                    defaultValue={profileData.bio}
                     onChange={handleInputChange}
                     rows="3"
                     className="mt-1 block w-full px-3 py-2 border text-black border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
