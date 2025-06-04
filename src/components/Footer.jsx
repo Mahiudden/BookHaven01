@@ -6,10 +6,10 @@ import logo from '../assets/logo.png'; // Import the logo image
 
 const Footer = () => {
   const socialLinks = [
-    { icon: FaTwitter, url: '#' },
-    { icon: FaFacebook, url: '#' },
-    { icon: FaInstagram, url: '#' },
-    { icon: FaLinkedin, url: '#' },
+    { icon: FaTwitter, url: 'https://x.com/mahiudden1' },
+    { icon: FaFacebook, url: 'https://www.facebook.com/aqmmahiudden.akhon' },
+    { icon: FaInstagram, url: 'https://www.instagram.com/mahiudden11/' },
+    { icon: FaLinkedin, url: 'https://www.linkedin.com/in/md-mahiuddden-b9b014299/' },
   ];
 
   const footerLinks = [
@@ -74,10 +74,10 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold text-white mb-4">Contact Us</h3>
             <div className="text-sm space-y-2">
-              <p>Email: support@bookhaven.com</p>
-              <p>Phone: +1 (555) 123-4567</p>
+              <p>Email: mahiudddenmd@gmail.com</p>
+              <p>Phone: +01760939984</p>
               <p>
-                Address: 123 Book Street, Reading City, RC 12345, United States
+                Address: 123 Book Street, Reading City, RC 12345, Bangladesh
               </p>
             </div>
           </div>

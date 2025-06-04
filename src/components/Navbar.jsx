@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaBars, FaTimes, FaUserCircle } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
@@ -9,6 +9,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -22,6 +23,13 @@ const Navbar = () => {
       console.error('Logout failed:', error);
       // Optionally show a toast notification for logout failure
     }
+  };
+
+  const isActive = (path) => {
+    if (path === '/') {
+      return location.pathname === path;
+    }
+    return location.pathname.startsWith(path);
   };
 
   const navLinks = [
@@ -42,10 +50,10 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center text-2xl font-bold text-blue-600">
+          <NavLink to="/" className="flex items-center text-2xl font-bold text-blue-600">
             <img src={logo} alt="BookHaven Logo" className="h-10 w-auto mr-2" />
             BookHaven
-          </Link>
+          </NavLink>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
@@ -56,7 +64,13 @@ const Navbar = () => {
                     <Link
                       key={link.name}
                       to={link.path}
-                      className="text-gray-700 hover:text-blue-600 transition-colors flex items-center"
+                      className={({ isActive }) =>
+                        `flex items-center relative transition-all duration-200 ${
+                          isActive 
+                            ? 'text-blue-600 font-semibold after:absolute after:bottom-[-8px] after:left-0 after:w-full after:h-0.5 after:bg-blue-600 after:rounded-full' 
+                            : 'text-gray-700 hover:text-blue-600 hover:after:absolute hover:after:bottom-[-8px] hover:after:left-0 hover:after:w-full hover:after:h-0.5 hover:after:bg-blue-600/50 hover:after:rounded-full'
+                        }`
+                      }
                     >
                       {/* Display profile image if available, otherwise show icon */}
                       {currentUser.photoURL ? (
@@ -71,13 +85,19 @@ const Navbar = () => {
                     </Link>
                   )
                 ) : (
-                  <Link
+                  <NavLink
                     key={link.name}
                     to={link.path}
-                    className="text-gray-700 hover:text-blue-600 transition-colors"
+                    className={({ isActive }) =>
+                      `relative transition-all duration-200 ${
+                        isActive 
+                          ? 'text-blue-600 font-semibold after:absolute after:bottom-[-8px] after:left-0 after:w-full after:h-0.5 after:bg-blue-600 after:rounded-full' 
+                          : 'text-gray-700 hover:text-blue-600 hover:after:absolute hover:after:bottom-[-8px] hover:after:left-0 hover:after:w-full hover:after:h-0.5 hover:after:bg-blue-600/50 hover:after:rounded-full'
+                      }`
+                    }
                   >
                     {link.name}
-                  </Link>
+                  </NavLink>
                 )
               )
             )}
@@ -125,11 +145,17 @@ const Navbar = () => {
                   link.protected && !currentUser ? null : (
                     link.name === 'Profile' ? (
                       currentUser && (
-                        <Link
+                        <NavLink
                           key={link.name}
                           to={link.path}
-                          onClick={toggleMenu} // Close menu on link click
-                          className="block text-gray-700 hover:text-blue-600 transition-colors flex items-center"
+                          onClick={toggleMenu}
+                          className={({ isActive }) =>
+                            `block flex items-center relative transition-all duration-200 ${
+                              isActive 
+                                ? 'text-blue-600 font-semibold after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-0.5 after:bg-blue-600 after:rounded-full' 
+                                : 'text-gray-700 hover:text-blue-600 hover:after:absolute hover:after:bottom-[-4px] hover:after:left-0 hover:after:w-full hover:after:h-0.5 hover:after:bg-blue-600/50 hover:after:rounded-full'
+                            }`
+                          }
                         >
                           {/* Display profile image if available, otherwise show icon */}
                           {currentUser.profilePhoto ? (
@@ -141,17 +167,23 @@ const Navbar = () => {
                           ) : (
                             <FaUserCircle className="h-6 w-6" />
                           )}
-                        </Link>
+                        </NavLink>
                       )
                     ) : (
-                      <Link
+                      <NavLink
                         key={link.name}
                         to={link.path}
-                        onClick={toggleMenu} // Close menu on link click
-                        className="block text-gray-700 hover:text-blue-600 transition-colors"
+                        onClick={toggleMenu}
+                        className={({ isActive }) =>
+                          `block relative transition-all duration-200 ${
+                            isActive 
+                              ? 'text-blue-600 font-semibold after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-0.5 after:bg-blue-600 after:rounded-full' 
+                              : 'text-gray-700 hover:text-blue-600 hover:after:absolute hover:after:bottom-[-4px] hover:after:left-0 hover:after:w-full hover:after:h-0.5 hover:after:bg-blue-600/50 hover:after:rounded-full'
+                          }`
+                        }
                       >
                         {link.name}
-                      </Link>
+                      </NavLink>
                     )
                   )
                 )}

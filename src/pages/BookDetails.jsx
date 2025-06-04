@@ -222,7 +222,7 @@ const BookDetails = () => {
 
     if (book.userEmail === currentUser.email) {
         toast.error("You can't upvote your own book!");
-        return;
+       return;
     }
 
     const url = `http://localhost:5000/api/books/${book._id}/upvote`;
@@ -292,10 +292,10 @@ const BookDetails = () => {
         });
         toast.success('Book deleted successfully!');
         navigate('/my-books');
-      } catch (error) {
+    } catch (error) {
         toast.error(error.response?.data?.message || 'Failed to delete book');
         console.error(error);
-      }
+    }
     }
   };
 
@@ -339,7 +339,7 @@ const BookDetails = () => {
           </div>
         </div>
         <div className="md:col-span-2 flex flex-col justify-center">
-          <h1 className="text-4xl lg:text-5xl font-extrabold text-gray-900 mb-4 leading-tight">{book.bookTitle}</h1>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-4 break-words">{book.bookTitle}</h1>
           <p className="text-xl lg:text-2xl text-gray-700 font-medium mb-4">by <span className="font-semibold text-gray-800">{book.bookAuthor}</span></p>
 
           {book.bookCategory && (
@@ -431,45 +431,45 @@ const BookDetails = () => {
               <>
                 <h4 className="font-semibold text-gray-800 mb-3">Update Reading Status:</h4>
                 <div className="flex flex-wrap items-center gap-3">
-                  <button
-                    onClick={() => handleStatusChange('Reading')}
+                   <button
+                     onClick={() => handleStatusChange('Reading')}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
                       book.readingStatus === 'Reading' ? 'bg-blue-600 text-white' : 'bg-gray-300 hover:bg-gray-400 text-gray-800'
                     }`}
-                    disabled={book.readingStatus === 'Reading'}
-                  >
-                    Reading
-                  </button>
+                     disabled={book.readingStatus === 'Reading'}
+                   >
+                     Reading
+                   </button>
 
-                  <button
+                   <button
                     onClick={() => handleStatusChange('Completed')}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 ${
                       book.readingStatus === 'Completed' ? 'bg-green-600 text-white' : 'bg-gray-300 hover:bg-gray-400 text-gray-800'
                     }`}
                     disabled={book.readingStatus === 'Completed'}
-                  >
+                   >
                     Completed
-                  </button>
+                   </button>
 
-                  <button
-                    onClick={() => handleStatusChange('Want-to-Read')}
+                   <button
+                     onClick={() => handleStatusChange('Want-to-Read')}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 ${
                       book.readingStatus === 'Want-to-Read' ? 'bg-purple-600 text-white' : 'bg-gray-300 hover:bg-gray-400 text-gray-800'
                     }`}
-                    disabled={book.readingStatus === 'Want-to-Read'}
-                  >
-                    Want to Read
-                  </button>
+                     disabled={book.readingStatus === 'Want-to-Read'}
+                   >
+                     Want to Read
+                   </button>
 
                   {book.readingStatus && (
-                    <button
-                      onClick={() => handleStatusChange('')}
+                   <button
+                     onClick={() => handleStatusChange('')}
                       className="px-4 py-2 rounded-full bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-                    >
-                      Remove Status
-                    </button>
-                  )}
-                </div>
+                   >
+                     Remove Status
+                   </button>
+                )}
+              </div>
               </>
             ) : (
               // For other users' books, just show the status if it exists
@@ -530,38 +530,38 @@ const BookDetails = () => {
               >
                   <h3 className="text-xl font-semibold text-gray-800 mb-4">Write Your Review</h3>
                   <form onSubmit={handleReviewSubmit} className="space-y-4">
-                      <div>
+          <div>
                           <label htmlFor="rating" className="block text-sm font-medium text-gray-700">Your Rating</label>
                           <Rating value={userRating} onChange={(rating) => setUserRating(rating)} size="lg" />
-                      </div>
-                      <div>
+          </div>
+          <div>
                           <label htmlFor="reviewText" className="block text-sm font-medium text-gray-700">Your Review</label>
-                          <textarea
+            <textarea
                               id="reviewText"
-                              rows="4"
+              rows="4"
                               className="mt-1 block w-full text-black p-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                               value={newReviewText}
                               onChange={(e) => setNewReviewText(e.target.value)}
                               placeholder="Share your thoughts on this book..."
-                              required
+              required
                           ></textarea>
-                      </div>
-                      <div className="flex justify-end space-x-3">
-                          <button
-                              type="button"
+          </div>
+          <div className="flex justify-end space-x-3">
+            <button
+              type="button"
                               onClick={() => setShowReviewInput(false)}
-                              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-                          >
-                              Cancel
-                          </button>
-                          <button
-                              type="submit"
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
                               className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                          >
-                              Submit Review
-                          </button>
-                      </div>
-                  </form>
+            >
+              Submit Review
+            </button>
+          </div>
+        </form>
               </motion.div>
           )}
 
