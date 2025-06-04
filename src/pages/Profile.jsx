@@ -64,7 +64,7 @@ const Profile = () => {
 
     try {
       // Fetch user statistics
-      const statsResponse = await axios.get('http://localhost:5000/api/users/stats', { headers });
+      const statsResponse = await axios.get('https://server-api-three.vercel.app/api/users/stats', { headers });
       setStats(statsResponse.data);
     } catch (error) {
       console.error('Error fetching user stats:', error);
@@ -73,7 +73,7 @@ const Profile = () => {
 
     try {
       // Fetch user profile data
-      const profileResponse = await axios.get('http://localhost:5000/api/users/profile', { headers });
+      const profileResponse = await axios.get('https://server-api-three.vercel.app/api/users/profile', { headers });
       setProfileData(profileResponse.data.user);
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -82,7 +82,7 @@ const Profile = () => {
 
     try {
       // Fetch bookmarks
-      const bookmarksResponse = await axios.get('http://localhost:5000/api/users/bookmarks', { headers });
+      const bookmarksResponse = await axios.get('https://server-api-three.vercel.app/api/users/bookmarks', { headers });
       setBookmarks(bookmarksResponse.data);
       setBookmarkedBooks(bookmarksResponse.data); // Also update local bookmarkedBooks state
     } catch (error) {
@@ -109,7 +109,7 @@ const Profile = () => {
       return;
     }
     try {
-      const response = await axios.get('http://localhost:5000/api/users/bookmarks', { // Use correct backend URL
+      const response = await axios.get('https://server-api-three.vercel.app/api/users/bookmarks', { // Use correct backend URL
         headers: { Authorization: `Bearer ${idToken}` }
       });
       setBookmarkedBooks(response.data); // Assuming backend returns array of book objects
@@ -127,7 +127,7 @@ const Profile = () => {
 
     const isCurrentlyBookmarked = (bookmarkedBooks || []).some(b => b._id === book._id);
     const method = isCurrentlyBookmarked ? 'delete' : 'post';
-    const url = `http://localhost:5000/api/books/${book._id}/bookmark`;
+    const url = `https://server-api-three.vercel.app/api/books/${book._id}/bookmark`;
 
     try {
       await axios({ method, url, headers: { Authorization: `Bearer ${idToken}` } });
@@ -154,7 +154,7 @@ const Profile = () => {
     e.preventDefault();
     try {
       const response = await axios.patch(
-        'http://localhost:5000/api/users/profile',
+        'https://server-api-three.vercel.app/api/users/profile',
         profileData,
         {
           headers: {

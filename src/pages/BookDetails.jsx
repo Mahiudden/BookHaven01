@@ -35,18 +35,18 @@ const BookDetails = () => {
       setLoading(true);
       setError(null);
       try {
-        const bookResponse = await axios.get(`http://localhost:5000/api/books/${id}`);
+        const bookResponse = await axios.get(`https://server-api-three.vercel.app/api/books/${id}`);
         setBook(bookResponse.data);
 
         setAverageRating(bookResponse.data.rating || 0);
         setTotalReviews(bookResponse.data.totalReviews || 0);
 
-        const reviewsResponse = await axios.get(`http://localhost:5000/api/books/${id}/reviews`);
+        const reviewsResponse = await axios.get(`https://server-api-three.vercel.app/api/books/${id}/reviews`);
         setReviews(reviewsResponse.data);
 
         if (currentUser && idToken) {
           try {
-            const bookmarksResponse = await axios.get('http://localhost:5000/api/users/bookmarks', {
+            const bookmarksResponse = await axios.get('https://server-api-three.vercel.app/api/users/bookmarks', {
               headers: { Authorization: `Bearer ${idToken}` }
             });
             const bookmarkedBooksData = bookmarksResponse.data || [];
@@ -82,7 +82,7 @@ const BookDetails = () => {
       return;
     }
     try {
-      const response = await axios.patch(`http://localhost:5000/api/reviews/${reviewId}`, updatedReviewData, {
+      const response = await axios.patch(`https://server-api-three.vercel.app/api/reviews/${reviewId}`, updatedReviewData, {
         headers: { Authorization: `Bearer ${idToken}` }
       });
 
@@ -127,7 +127,7 @@ const BookDetails = () => {
             onClick={async () => {
               toast.dismiss(t.id);
               try {
-                const response = await axios.delete(`http://localhost:5000/api/reviews/${reviewId}`, {
+                const response = await axios.delete(`https://server-api-three.vercel.app/api/reviews/${reviewId}`, {
                   headers: { Authorization: `Bearer ${idToken}` }
                 });
 
@@ -164,7 +164,7 @@ const BookDetails = () => {
 
     const isCurrentlyBookmarked = isBookmarked;
     const method = isCurrentlyBookmarked ? 'delete' : 'post';
-    const url = `http://localhost:5000/api/books/${book._id}/bookmark`;
+    const url = `https://server-api-three.vercel.app/api/books/${book._id}/bookmark`;
 
     try {
       await axios({ method, url, headers: { Authorization: `Bearer ${idToken}` } });
@@ -194,7 +194,7 @@ const BookDetails = () => {
     }
 
     try {
-      const response = await axios.post(`http://localhost:5000/api/books/${id}/reviews`, {
+      const response = await axios.post(`https://server-api-three.vercel.app/api/books/${id}/reviews`, {
         reviewText: newReviewText,
         rating: userRating
       }, { headers: { Authorization: `Bearer ${idToken}` } });
@@ -225,7 +225,7 @@ const BookDetails = () => {
        return;
     }
 
-    const url = `http://localhost:5000/api/books/${book._id}/upvote`;
+    const url = `https://server-api-three.vercel.app/api/books/${book._id}/upvote`;
 
     try {
       const response = await axios.post(url, {}, { headers: { Authorization: `Bearer ${idToken}` } });
@@ -261,7 +261,7 @@ const BookDetails = () => {
 
     try {
       const response = await axios.patch(
-        `http://localhost:5000/api/books/${id}`,
+        `https://server-api-three.vercel.app/api/books/${id}`,
         { readingStatus: newStatus },
         { headers: { Authorization: `Bearer ${idToken}` } }
       );
@@ -287,7 +287,7 @@ const BookDetails = () => {
 
     if (window.confirm('Are you sure you want to delete this book?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/books/${book._id}`, {
+        await axios.delete(`https://server-api-three.vercel.app/api/books/${book._id}`, {
           headers: { Authorization: `Bearer ${idToken}` }
         });
         toast.success('Book deleted successfully!');

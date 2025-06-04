@@ -51,7 +51,7 @@ const EditBook = () => {
 
     const fetchBookData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/books/${id}`, {
+        const response = await axios.get(`https://server-api-three.vercel.app/api/books/${id}`, {
           headers: {
             Authorization: `Bearer ${idToken}`
           }
@@ -104,7 +104,7 @@ const EditBook = () => {
 
     setLoading(true);
     try {
-      const response = await axios.patch(`http://localhost:5000/api/books/${id}`, formData, {
+      const response = await axios.patch(`https://server-api-three.vercel.app/api/books/${id}`, formData, {
         headers: {
           Authorization: `Bearer ${idToken}`
         }

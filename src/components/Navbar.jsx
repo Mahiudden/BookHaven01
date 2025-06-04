@@ -57,11 +57,11 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
-            {navLinks.map((link) =>
+            {navLinks.map((link,id) =>
               link.protected && !currentUser ? null : (
                 link.name === 'Profile' ? (
                   currentUser && (
-                    <Link
+                    <NavLink
                       key={link.name}
                       to={link.path}
                       className={({ isActive }) =>
@@ -72,17 +72,8 @@ const Navbar = () => {
                         }`
                       }
                     >
-                      {/* Display profile image if available, otherwise show icon */}
-                      {currentUser.photoURL ? (
-                        <img
-                          src={currentUser.photoURL}
-                          alt="Profile"
-                          className="h-8 w-8 rounded-full object-cover"
-                        />
-                      ) : (
-                        <FaUserCircle className="h-6 w-6" />
-                      )}
-                    </Link>
+                      {link.name}
+                    </NavLink>
                   )
                 ) : (
                   <NavLink
@@ -158,9 +149,9 @@ const Navbar = () => {
                           }
                         >
                           {/* Display profile image if available, otherwise show icon */}
-                          {currentUser.profilePhoto ? (
+                          {currentUser.photoURL ? (
                             <img
-                              src={currentUser.profilePhoto}
+                              src={currentUser.photoURL}
                               alt="Profile"
                               className="h-6 w-6 rounded-full object-cover"
                             />

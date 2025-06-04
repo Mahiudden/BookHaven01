@@ -115,7 +115,7 @@ const Bookshelf = () => {
         queryParams.append('userEmail', currentUser.email);
       }
 
-      const response = await axios.get(`http://localhost:5000/api/books?${queryParams}`);
+      const response = await axios.get(`https://server-api-three.vercel.app/api/books?${queryParams}`);
       setBooks(response.data.books);
       setTotalPages(response.data.totalPages);
       setTotalBooks(response.data.totalBooks);
@@ -134,7 +134,7 @@ const Bookshelf = () => {
       return;
     }
     try {
-      const response = await axios.get('http://localhost:5000/api/users/bookmarks', {
+      const response = await axios.get('https://server-api-three.vercel.app/api/users/bookmarks', {
         headers: { Authorization: `Bearer ${idToken}` }
       });
       setBookmarkedBooks(response.data);
@@ -155,7 +155,7 @@ const Bookshelf = () => {
 
       setIsSearching(true);
       try {
-        const response = await axios.get(`http://localhost:5000/api/books/search?q=${encodeURIComponent(query)}`);
+        const response = await axios.get(`https://server-api-three.vercel.app/api/books/search?q=${encodeURIComponent(query)}`);
         setBooks(response.data.books);
         setTotalPages(1);
         setCurrentPage(1);
@@ -208,7 +208,7 @@ const Bookshelf = () => {
 
     const isCurrentlyBookmarked = bookmarkedBooks.some(b => b._id === book._id);
     const method = isCurrentlyBookmarked ? 'delete' : 'post';
-    const url = `http://localhost:5000/api/books/${book._id}/bookmark`;
+    const url = `https://server-api-three.vercel.app/api/books/${book._id}/bookmark`;
 
     try {
       await axios({ method, url, headers: { Authorization: `Bearer ${idToken}` } });
@@ -237,7 +237,7 @@ const Bookshelf = () => {
         return;
     }
 
-    const url = `http://localhost:5000/api/books/${book._id}/upvote`;
+    const url = `https://server-api-three.vercel.app/api/books/${book._id}/upvote`;
 
     try {
       const response = await axios.post(url, {}, { headers: { Authorization: `Bearer ${idToken}` } });

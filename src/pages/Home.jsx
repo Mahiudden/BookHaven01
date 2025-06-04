@@ -112,7 +112,7 @@ const Home = () => {
 
   const fetchTrendingBooks = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/books/trending');
+      const response = await axios.get('https://server-api-three.vercel.app/api/books/trending');
       setTrendingBooks(response.data);
       setLoading(false);
     } catch (error) {
@@ -124,7 +124,7 @@ const Home = () => {
 
   const fetchBooksByCategory = async (category, setState) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/books?category=${category}&limit=6`); // Fetch 6 books per category
+      const response = await axios.get(`https://server-api-three.vercel.app/api/books?category=${category}&limit=6`); // Fetch 6 books per category
       setState(response.data.books);
     } catch (error) {
       console.error(`Error fetching ${category} books:`, error);
@@ -138,7 +138,7 @@ const Home = () => {
       return;
     }
     try {
-      const response = await axios.get('http://localhost:5000/api/users/bookmarks', {
+      const response = await axios.get('https://server-api-three.vercel.app/api/users/bookmarks', {
         headers: { Authorization: `Bearer ${idToken}` }
       });
       // Assuming the backend returns an array of bookmarked books directly
@@ -160,7 +160,7 @@ const Home = () => {
 
     setIsSearching(true);
     try {
-      const response = await axios.get(`http://localhost:5000/api/books/search?q=${query}`);
+      const response = await axios.get(`https://server-api-three.vercel.app/api/books/search?q=${query}`);
       setSearchResults(response.data.books); // Assuming the search endpoint returns { books: [...] }
       setIsSearching(false);
     } catch (error) {
@@ -181,7 +181,7 @@ const Home = () => {
     setLoading(true); // Show loading for category filter
     setSearchResults([]); // Clear search results when filtering by category
     try {
-      const response = await axios.get(`http://localhost:5000/api/books?category=${category}`);
+      const response = await axios.get(`https://server-api-three.vercel.app/api/books?category=${category}`);
       setTrendingBooks(response.data.books); // Use the main books state for filtered results
       setLoading(false);
     } catch (error) {
@@ -203,7 +203,7 @@ const Home = () => {
 
     const isCurrentlyBookmarked = (bookmarkedBooks || []).some(b => b._id === book._id);
     const method = isCurrentlyBookmarked ? 'delete' : 'post';
-    const url = `http://localhost:5000/api/books/${book._id}/bookmark`;
+    const url = `https://server-api-three.vercel.app/api/books/${book._id}/bookmark`;
 
     try {
       await axios({ method, url, headers: { Authorization: `Bearer ${idToken}` } });
@@ -234,7 +234,7 @@ const Home = () => {
       return;
     }
 
-    const url = `http://localhost:5000/api/books/${book._id}/upvote`; // Use the upvote endpoint
+    const url = `https://server-api-three.vercel.app/api/books/${book._id}/upvote`; // Use the upvote endpoint
 
     try {
       // Send a POST request to the upvote endpoint
