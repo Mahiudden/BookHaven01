@@ -4,8 +4,15 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
-import { FaEdit, FaSpinner, FaBook, FaBookmark, FaHeart, FaChartBar } from 'react-icons/fa';
+import { FaEdit, FaSpinner, FaBook, FaBookmark, FaChartBar } from 'react-icons/fa';
+// Import Chart.js components and Doughnut chart type
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Doughnut } from 'react-chartjs-2'; // Import Doughnut instead of Pie
+
 import BookCard from '../components/BookCard';
+
+// Register Chart.js components
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -27,8 +34,7 @@ const Profile = () => {
     totalUpvotes: 0
   });
   const [bookmarks, setBookmarks] = useState([]);
-  const [likes, setLikes] = useState([]);
-  const [activeTab, setActiveTab] = useState('stats'); // 'stats', 'bookmarks', 'likes'
+  const [activeTab, setActiveTab] = useState('stats'); // 'stats', 'bookmarks'
   const [bookmarkedBooks, setBookmarkedBooks] = useState([]); // State to track bookmarked books locally
 
   useEffect(() => {
@@ -62,21 +68,16 @@ const Profile = () => {
       setStats(statsResponse.data);
     } catch (error) {
       console.error('Error fetching user stats:', error);
-      // Optionally set a specific error for stats, but don't block the whole page
-      // setError('Failed to fetch user statistics');
-       toast.error('Failed to fetch user statistics'); // Use toast for non-blocking error
+      toast.error('Failed to fetch user statistics');
     }
 
     try {
       // Fetch user profile data
       const profileResponse = await axios.get('http://localhost:5000/api/users/profile', { headers });
-      // The backend returns an object with user, bookStats, and engagementStats.
-      // The user details are directly under the 'user' property.
-      setProfileData(profileResponse.data.user); // Set profileData to the user object
+      setProfileData(profileResponse.data.user);
     } catch (error) {
       console.error('Error fetching user profile:', error);
       toast.error('Failed to fetch user profile');
-      // You might want to handle this error more gracefully, e.g., show a default profile
     }
 
     try {
@@ -86,32 +87,18 @@ const Profile = () => {
       setBookmarkedBooks(bookmarksResponse.data); // Also update local bookmarkedBooks state
     } catch (error) {
       console.error('Error fetching user bookmarks:', error);
-      // If bookmarks endpoint is not found (404), just set bookmarks to an empty array
       if (error.response && error.response.status === 404) {
         console.warn('Bookmarks endpoint not found, setting bookmarks to empty array.');
-        setBookmarks([]); // Set to empty array on 404
+        setBookmarks([]);
         setBookmarkedBooks([]);
-        toast.warn('Bookmarks feature not available yet.'); // Inform the user
+        toast.warn('Bookmarks feature not available yet.');
       } else {
-         // Handle other potential errors for bookmarks fetch
-         toast.error('Failed to fetch user bookmarks'); // Use toast for non-blocking error
-        setBookmarks([]); // Set to empty array on other errors as well
+        toast.error('Failed to fetch user bookmarks');
+        setBookmarks([]);
         setBookmarkedBooks([]);
       }
     }
 
-    try {
-      // Fetch likes
-      const likesResponse = await axios.get('http://localhost:5000/api/users/likes', { headers });
-      setLikes(likesResponse.data);
-    } catch (error) {
-      console.error('Error fetching user likes:', error);
-       toast.error('Failed to fetch user likes'); // Use toast for non-blocking error
-       // Optionally set a specific error for likes, but don't block the whole page
-       // setLikes([]); // Set to empty array on error
-    }
-
-    // Set loading to false after all independent fetches are attempted
     setLoading(false);
   };
 
@@ -128,7 +115,6 @@ const Profile = () => {
       setBookmarkedBooks(response.data); // Assuming backend returns array of book objects
     } catch (error) {
       console.error('Error fetching bookmarked books for toggle state:', error);
-      // Optionally show a toast or handle the error
     }
   };
 
@@ -161,40 +147,6 @@ const Profile = () => {
     } catch (error) {
       console.error('Error toggling bookmark:', error);
       toast.error(error.response?.data?.message || 'Failed to update bookmark');
-    }
-  };
-
-  // Handle adding or removing a like
-  const handleLike = async (book) => { // Add book parameter to access its _id
-    if (!currentUser || !idToken) {
-      toast.error('Please login to like books');
-      return;
-    }
-
-    // Check if the book is currently liked (assuming 'likes' state holds liked books)
-    const isCurrentlyLiked = (likes || []).some(b => b._id === book._id);
-    const method = isCurrentlyLiked ? 'delete' : 'post';
-    const url = `http://localhost:5000/api/books/${book._id}/like`; // Use book._id
-
-    try {
-      await axios({ method, url, headers: { Authorization: `Bearer ${idToken}` } });
-
-      // Update local state based on the action performed
-      if (isCurrentlyLiked) {
-        // Remove from both likes state and potentially update the isLiked prop if used elsewhere
-        setLikes((likes || []).filter(b => b._id !== book._id)); // Remove from the list state
-        // If you have an isLiked state for individual books or in a list, update it here
-        toast.success('Book unliked');
-      } else {
-        // Add the book to the likes state if successfully liked
-        // Note: Adding the full book object here might be needed if you display details from the likes list
-        // For simplicity and consistency with bookmarks, we'll add the book object.
-        setLikes([...(likes || []), book]);
-        toast.success('Book liked');
-      }
-    } catch (error) {
-      console.error('Error updating like:', error);
-      toast.error(error.response?.data?.message || 'Failed to update like', 'error');
     }
   };
 
@@ -244,6 +196,45 @@ const Profile = () => {
     );
   }
 
+  // Prepare data for the pie chart
+  const pieChartData = {
+    labels: ['Currently Reading', 'Books Read', 'Want to Read'],
+    datasets: [
+      {
+        data: [stats.currentlyReading, stats.booksRead, stats.wantToRead],
+        backgroundColor: [
+          'rgba(54, 162, 235, 0.6)', // Blue for Reading
+          'rgba(75, 192, 192, 0.6)', // Green for Read
+          'rgba(153, 102, 255, 0.6)', // Purple for Want to Read
+        ],
+        borderColor: [
+          'rgba(54, 162, 235, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(153, 102, 255, 1)',
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  // Chart options (optional, for customization)
+  const pieChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false, // Allow controlling size with parent div
+    plugins: {
+      legend: {
+        position: 'top', // Position legend at the top
+      },
+      title: {
+        display: true,
+        text: 'Reading Status Overview', // Chart title
+        font: {
+            size: 18
+        }
+      },
+    },
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -278,25 +269,25 @@ const Profile = () => {
                 <div className="flex-1 text-center md:text-left">
                   <h1 className="text-3xl font-bold mb-2 text-black">{profileData.name}</h1>
                   <p className="text-gray-600 mb-4">{profileData.bio || 'No bio yet'}</p>
-                  {/* Stats */}
-                  <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+                  {/* Stats - Removed inline stats, will be shown in tab content */}
+                  {/* <div className="flex flex-wrap gap-4 justify-center md:justify-start">
                     <div className="text-center">
                       <p className="text-2xl font-bold text-blue-600">{stats.totalBooks}</p>
                       <p className="text-sm text-gray-600">Total Books</p>
                     </div>
-                    <div className="text-center">
+                     <div className="text-center">
                       <p className="text-2xl font-bold text-green-600">{stats.booksRead}</p>
                       <p className="text-sm text-gray-600">Books Read</p>
                     </div>
-                    <div className="text-center">
+                     <div className="text-center">
                       <p className="text-2xl font-bold text-purple-600">{stats.totalReviews}</p>
                       <p className="text-sm text-gray-600">Reviews</p>
                     </div>
-                    <div className="text-center">
+                     <div className="text-center">
                       <p className="text-2xl font-bold text-red-600">{stats.totalUpvotes}</p>
                       <p className="text-sm text-gray-600">Upvotes Received</p>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             ) : (
@@ -377,142 +368,87 @@ const Profile = () => {
         <nav className="flex space-x-8">
           <button
             onClick={() => setActiveTab('stats')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'stats'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
+            className={`py-4 px-1 border-b-2 font-medium text-sm ${ activeTab === 'stats' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
           >
             <FaChartBar className="inline-block mr-2" />
             Reading Statistics
           </button>
           <button
             onClick={() => setActiveTab('bookmarks')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'bookmarks'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
+            className={`py-4 px-1 border-b-2 font-medium text-sm ${ activeTab === 'bookmarks' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
           >
             <FaBookmark className="inline-block mr-2" />
-            Bookmarks
-          </button>
-          <button
-            onClick={() => setActiveTab('likes')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'likes'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            <FaHeart className="inline-block mr-2" />
-            Liked Books
+            Bookmarks ({bookmarks.length})
           </button>
         </nav>
       </div>
 
       {/* Tab Content */}
       <div className="mt-6">
-        {activeTab === 'stats' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold mb-2">Reading Progress</h3>
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm text-gray-600">Currently Reading</span>
-                    <span className="text-sm font-medium">{stats.currentlyReading}</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-600 h-2 rounded-full"
-                      style={{ width: `${(stats.currentlyReading / stats.totalBooks) * 100}%` }}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm text-gray-600">Books Read</span>
-                    <span className="text-sm font-medium">{stats.booksRead}</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-green-600 h-2 rounded-full"
-                      style={{ width: `${(stats.booksRead / stats.totalBooks) * 100}%` }}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-sm text-gray-600">Want to Read</span>
-                    <span className="text-sm font-medium">{stats.wantToRead}</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-purple-600 h-2 rounded-full"
-                      style={{ width: `${(stats.wantToRead / stats.totalBooks) * 100}%` }}
-                    />
-                  </div>
-                </div>
+        {activeTab === 'stats' && ( // Display the chart in the stats tab content
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+          >
+            {/* Doughnut Chart for Reading Status */}
+            {stats.totalBooks > 0 ? (
+              <div className="bg-white rounded-lg shadow-md p-6 flex justify-center" style={{ height: '300px' }}>
+                 <Doughnut data={pieChartData} options={pieChartOptions} /> {/* Changed Pie to Doughnut */}
               </div>
+            ) : (
+               <div className="bg-white rounded-lg shadow-md p-6 col-span-full text-center">
+                   <p className="text-gray-600">Add books to see your reading status statistics.</p>
+               </div>
+            )}
+
+            {/* Other Stats - Can be displayed alongside the chart or below */}
+             <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-lg font-semibold mb-4">Activity & Engagement</h3>
+              <div className="space-y-4 text-gray-700">
+                 <div className="flex justify-between items-center">
+                    <span className="font-medium">Total Books:</span>
+                    <span>{stats.totalBooks}</span>
+                 </div>
+                 <div className="flex justify-between items-center">
+                    <span className="font-medium">Reviews Written:</span>
+                    <span>{stats.totalReviews}</span>
+                 </div>
+                 <div className="flex justify-between items-center">
+                    <span className="font-medium">Upvotes Received:</span>
+                    <span>{stats.totalUpvotes}</span>
+                 </div>
+              </div>
+               {/* You can add more engagement stats here if your backend provides them */}
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold mb-4">Reading Goals</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Books Read This Year</span>
-                  <span className="text-sm font-medium">{stats.booksRead}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Reviews Written</span>
-                  <span className="text-sm font-medium">{stats.totalReviews}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Upvotes Received</span>
-                  <span className="text-sm font-medium">{stats.totalUpvotes}</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          </motion.div>
         )}
 
+        {/* Bookmarks Content */}
         {activeTab === 'bookmarks' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          >
             {bookmarks.length === 0 ? (
               <p className="text-gray-500 col-span-full text-center">No bookmarked books yet</p>
             ) : (
               bookmarks.map(book => (
-                <BookCard 
-                  key={book._id} 
-                  book={book} 
-                  onBookmarkToggle={handleBookmarkToggle} 
-                  isBookmarked={(bookmarkedBooks || []).some(b => b._id === book._id)} 
-                  currentUser={currentUser} 
-                />
-              ))
-            )}
-          </div>
-        )}
-
-        {activeTab === 'likes' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {likes.length === 0 ? (
-              <p className="text-gray-500 col-span-full text-center">No liked books yet</p>
-            ) : (
-              likes.map(book => (
-                <BookCard 
-                  key={book._id} 
-                  book={book} 
-                  onBookmarkToggle={handleBookmarkToggle} 
-                  isBookmarked={(bookmarkedBooks || []).some(b => b._id === book._id)} 
-                  onLikeToggle={() => handleLike(book)}
-                  isLiked={(likes || []).some(b => b._id === book._id)}
+                <BookCard
+                  key={book._id}
+                  book={book}
+                  onBookmarkToggle={handleBookmarkToggle}
+                  isBookmarked={(bookmarkedBooks || []).some(b => b._id === book._id)}
                   currentUser={currentUser}
+                  readingStatus={book.readingStatus}
                 />
               ))
             )}
-          </div>
+          </motion.div>
         )}
       </div>
     </motion.div>

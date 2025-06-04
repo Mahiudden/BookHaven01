@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { FaSearch, FaSpinner, FaBook, FaStar, FaBookmark, FaHeart } from 'react-icons/fa';
+import { useNavigate, Link } from 'react-router-dom';
+import { FaSearch, FaSpinner, FaBook, FaStar, FaBookmark, FaHeart, FaChevronLeft, FaChevronRight, FaArrowRight } from 'react-icons/fa';
 import SearchBar from '../components/SearchBar';
 import BookCard from '../components/BookCard';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
+import FAQAccordion from '../components/FAQAccordion';
 
 const categories = [
   'All',
@@ -32,17 +33,67 @@ const Home = () => {
   const [nonFictionBooks, setNonFictionBooks] = useState([]);
   const [fantasyBooks, setFantasyBooks] = useState([]);
   const [bookmarkedBooks, setBookmarkedBooks] = useState([]);
-  const [likedBooks, setLikedBooks] = useState([]);
   const { currentUser, idToken } = useAuth();
 
   const bannerItems = [
-    { id: 1, title: 'Explore Vast Literary Worlds', description: 'Dive into our extensive collection and find your next great read.', image: 'https://i.ibb.co/PvYDmBjd/4591314.jpg' },
-    { id: 2, title: 'Curated Picks Just For You', description: 'Discover hand-picked books based on your interests and popular trends.', image: 'https://i.ibb.co/M5nsDy7q/5110476.jpg' },
-    { id: 3, title: 'Join a Thriving Reading Community', description: 'Connect with fellow book lovers, share reviews, and discuss your favorite titles.', image: 'https://i.ibb.co/DHh1M731/6850062.jpg' },
-    { id: 4, title: 'Track Your Personal Reading Journey', description: 'Monitor your progress, set goals, and visualize your reading habits over time.', image: 'https://i.ibb.co/jP41Yc8X/5671236.jpg' },
+    {
+      id: 1,
+      title: 'Explore Vast Literary Worlds',
+      description: 'Dive into our extensive collection and find your next great read.',
+      image: 'https://i.ibb.co/PvYDmBjd/4591314.jpg',
+      buttonText: 'Browse Books',
+      buttonLink: '/bookshelf'
+    },
+    {
+      id: 2,
+      title: 'Curated Picks Just For You',
+      description: 'Discover hand-picked books based on your interests and popular trends.',
+      image: 'https://i.ibb.co/M5nsDy7q/5110476.jpg',
+      buttonText: 'Browse Books',
+      buttonLink: '/bookshelf'
+    },
+    {
+      id: 3,
+      title: 'Join a Thriving Reading Community',
+      description: 'Connect with fellow book lovers, share reviews, and discuss your favorite titles.',
+      image: 'https://i.ibb.co/DHh1M731/6850062.jpg',
+      buttonText: 'Browse Books',
+      buttonLink: '/bookshelf'
+    },
+    {
+      id: 4,
+      title: 'Track Your Personal Reading Journey',
+      description: 'Monitor your progress, set goals, and visualize your reading habits over time.',
+      image: 'https://i.ibb.co/jP41Yc8X/5671236.jpg',
+      buttonText: 'Start Reading',
+      buttonLink: '/my-books'
+    },
   ];
 
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
+
+  const faqData = [
+    {
+      question: 'How do I create an account?',
+      answer: 'Click on the Login button and choose your preferred sign up method. You can use email or social login.'
+    },
+    {
+      question: 'How can I add a book to my bookshelf?',
+      answer: 'After logging in, go to Add Book, fill in the details, and submit. The book will appear in your bookshelf.'
+    },
+    {
+      question: 'Can I bookmark or like a book without logging in?',
+      answer: 'No, you must be logged in to bookmark or like a book.'
+    },
+    {
+      question: 'How do I write a review?',
+      answer: 'Go to the book details page and click on Write a Review. You must be logged in to submit a review.'
+    },
+    {
+      question: 'Is my data secure?',
+      answer: 'Yes, your data is securely stored and only accessible to you.'
+    },
+  ];
 
   useEffect(() => {
     fetchTrendingBooks();
@@ -50,7 +101,6 @@ const Home = () => {
     fetchBooksByCategory('Non-fiction', setNonFictionBooks);
     fetchBooksByCategory('Fantasy', setFantasyBooks);
     fetchBookmarkedBooks();
-    fetchLikedBooks();
 
     const bannerInterval = setInterval(() => {
       setCurrentBannerIndex((prevIndex) => (prevIndex + 1) % bannerItems.length);
@@ -96,24 +146,6 @@ const Home = () => {
     } catch (error) {
       console.error('Error fetching bookmarked books:', error);
       setError('Failed to fetch bookmarked books');
-      // setLoading(false); // Avoid setting global loading state here
-    }
-  };
-
-  const fetchLikedBooks = async () => {
-    if (!currentUser || !idToken) {
-      setLikedBooks([]);
-      return;
-    }
-    try {
-      const response = await axios.get('http://localhost:5000/api/users/likes', {
-        headers: { Authorization: `Bearer ${idToken}` }
-      });
-      // Assuming the backend returns an array of liked book objects directly
-      setLikedBooks(response.data);
-    } catch (error) {
-      console.error('Error fetching liked books:', error);
-      // setError('Failed to fetch liked books'); // Avoid setting global error state here
       // setLoading(false); // Avoid setting global loading state here
     }
   };
@@ -190,38 +222,66 @@ const Home = () => {
     }
   };
 
-  const handleLikeToggle = async (book) => {
+  const handleUpvoteClick = async (book) => {
     if (!currentUser || !idToken) {
       navigate('/login');
       return;
     }
 
-    // Check if the user is trying to like their own book
+    // Check if the user is trying to upvote their own book
     if (book.userEmail === currentUser.email) {
-        toast.error('Cannot like your own book');
-        return;
+      toast.error("You can't upvote your own book!");
+      return;
     }
 
-    const isCurrentlyLiked = (likedBooks || []).some(b => b._id === book._id);
-    const method = isCurrentlyLiked ? 'delete' : 'post';
-    const url = `http://localhost:5000/api/books/${book._id}/like`;
+    const url = `http://localhost:5000/api/books/${book._id}/upvote`; // Use the upvote endpoint
 
     try {
-      await axios({ method, url, headers: { Authorization: `Bearer ${idToken}` } });
+      // Send a POST request to the upvote endpoint
+      const response = await axios.post(url, {}, { headers: { Authorization: `Bearer ${idToken}` } });
 
-      // Update local likedBooks state
-      if (isCurrentlyLiked) {
-        setLikedBooks((likedBooks || []).filter(b => b._id !== book._id));
-        toast.success('Book unliked');
-      } else {
-        setLikedBooks([...(likedBooks || []), book]);
-        toast.success('Book liked');
-      }
+      // Update the book list with the new upvote count
+      // This requires finding the book in the relevant state array (trendingBooks, searchResults, fictionBooks, etc.)
+      // and updating its upvote count. This can be complex if the book appears in multiple lists.
+      // A simpler approach for now is to refetch the relevant data, or just update the single book's state if possible.
+      // For simplicity, let's just refetch trending books for now as an example.
+      // In a real app, you'd want a more efficient state update or central state management.
+
+      // Option 1: Refetching (simple but less efficient)
+      // fetchTrendingBooks();
+
+      // Option 2: Update state directly (more efficient but requires finding the book)
+      // Example for trendingBooks:
+      setTrendingBooks(prevBooks => 
+        prevBooks.map(b => 
+          b._id === book._id ? { ...b, upvote: response.data.book.upvote } : b
+        )
+      );
+      // You would need to do this for all relevant book lists (searchResults, fictionBooks, etc.)
+
+      toast.success('Book upvoted successfully!');
 
     } catch (error) {
-      console.error('Error toggling like:', error);
-      toast.error(error.response?.data?.message || 'Failed to update like');
+      console.error('Error upvoting book:', error);
+      // Check if the error is due to trying to upvote own book
+      if (error.response?.data?.message === "You can't upvote your own book") {
+        toast.error("You can't upvote your own book!");
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to upvote book');
+      }
     }
+  };
+
+  const handlePrevSlide = () => {
+    setCurrentBannerIndex((prevIndex) => 
+      prevIndex === 0 ? bannerItems.length - 1 : prevIndex - 1
+    );
+  };
+
+  const handleNextSlide = () => {
+    setCurrentBannerIndex((prevIndex) => 
+      (prevIndex + 1) % bannerItems.length
+    );
   };
 
   if (loading && selectedCategory === 'All') {
@@ -239,32 +299,97 @@ const Home = () => {
       exit={{ opacity: 0 }}
       className="container mx-auto px-0 py-0"
     >
-      {/* Banner/Slider Section */}
-      <section className="relative w-full h-[400px] md:h-[500px] overflow-hidden mb-12 rounded-md">
-        {bannerItems.map((item, index) => (
-          <motion.div
-            key={item.id}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: index === currentBannerIndex ? 1 : 0 }}
-            transition={{ opacity: { duration: 1 } }}
-            className="absolute top-0 left-0 w-full h-full bg-cover bg-center flex items-center justify-center text-white"
-            style={{ backgroundImage: `url(${item.image})` }}
-          >
-            <div className="bg-black bg-opacity-50 p-8 rounded-md text-center max-w-2xl">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">{item.title}</h2>
-              <p className="text-lg">{item.description}</p>
-            </div>
-          </motion.div>
-        ))}
-        {/* Navigation Dots (Optional) */}
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+      {/* Enhanced Banner/Slider Section */}
+      <section className="relative w-full h-[500px] md:h-[600px] overflow-hidden mb-12">
+        <AnimatePresence mode="wait">
+          {bannerItems.map((item, index) => (
+            index === currentBannerIndex && (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, scale: 1.1 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.7 }}
+                className="absolute top-0 left-0 w-full h-full"
+              >
+                {/* Background Image with Gradient Overlay */}
+                <div 
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{ 
+                    backgroundImage: `url(${item.image})`,
+                    filter: 'brightness(0.8)'
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
+
+                {/* Content Container */}
+                <div className="relative h-full flex items-center">
+                  <div className="container mx-auto px-4 md:px-8">
+                    <div className="max-w-2xl">
+                      <motion.h2 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight"
+                      >
+                        {item.title}
+                      </motion.h2>
+                      <motion.p 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="text-lg md:text-xl text-gray-200 mb-8"
+                      >
+                        {item.description}
+                      </motion.p>
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.6 }}
+                      >
+                        <Link
+                          to={item.buttonLink}
+                          className="inline-flex items-center px-8 py-3 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition-colors duration-300 transform hover:scale-105"
+                        >
+                          {item.buttonText}
+                          <FaArrowRight className="ml-2" />
+                        </Link>
+                      </motion.div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )
+          ))}
+        </AnimatePresence>
+
+        {/* Navigation Arrows */}
+        <button
+          onClick={handlePrevSlide}
+          className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors duration-300 z-10"
+          aria-label="Previous slide"
+        >
+          <FaChevronLeft className="w-6 h-6" />
+        </button>
+        <button
+          onClick={handleNextSlide}
+          className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors duration-300 z-10"
+          aria-label="Next slide"
+        >
+          <FaChevronRight className="w-6 h-6" />
+        </button>
+
+        {/* Enhanced Navigation Dots */}
+        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-3 z-10">
           {bannerItems.map((_, index) => (
             <button
               key={index}
-              className={`w-3 h-3 rounded-full ${
-                index === currentBannerIndex ? 'bg-white' : 'bg-gray-400'
-              }`}
               onClick={() => setCurrentBannerIndex(index)}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                index === currentBannerIndex 
+                  ? 'bg-white scale-125' 
+                  : 'bg-white/50 hover:bg-white/75'
+              }`}
               aria-label={`Go to slide ${index + 1}`}
             />
           ))}
@@ -286,18 +411,23 @@ const Home = () => {
               <p className="text-center text-gray-500">No books found matching your search</p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {searchResults.map((book) => (
-                  <BookCard
-                    key={book._id}
-                    book={book}
-                    onClick={() => handleBookClick(book._id)}
-                    onBookmarkToggle={handleBookmarkToggle}
-                    isBookmarked={(bookmarkedBooks || []).some(b => b._id === book._id)}
-                    onLikeToggle={handleLikeToggle}
-                    isLiked={(likedBooks || []).some(b => b._id === book._id)}
-                    currentUser={currentUser}
-                  />
-                ))}
+                {searchResults.map((book) => {
+                  // Prioritize the book's own readingStatus if available
+                  const readingStatus = book.readingStatus || (bookmarkedBooks.find(b => b._id === book._id)?.readingStatus || '');
+
+                  return (
+                    <BookCard
+                      key={book._id}
+                      book={book}
+                      onClick={() => handleBookClick(book._id)}
+                      onBookmarkToggle={handleBookmarkToggle}
+                      isBookmarked={(bookmarkedBooks || []).some(b => b._id === book._id)}
+                      onUpvoteClick={handleUpvoteClick}
+                      currentUser={currentUser}
+                      readingStatus={readingStatus}
+                    />
+                  );
+                })}
               </div>
             )}
           </div>
@@ -318,18 +448,23 @@ const Home = () => {
                  <p className="text-center text-gray-500">No popular books found.</p>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {trendingBooks.slice(0, 9).map((book) => (
-                    <BookCard
-                      key={book._id}
-                      book={book}
-                      onClick={() => handleBookClick(book._id)}
-                      onBookmarkToggle={handleBookmarkToggle}
-                      isBookmarked={(bookmarkedBooks || []).some(b => b._id === book._id)}
-                      onLikeToggle={handleLikeToggle}
-                      isLiked={(likedBooks || []).some(b => b._id === book._id)}
-                      currentUser={currentUser}
-                    />
-                  ))}
+                  {trendingBooks.slice(0, 9).map((book) => {
+                    // Prioritize the book's own readingStatus if available
+                    const readingStatus = book.readingStatus || (bookmarkedBooks.find(b => b._id === book._id)?.readingStatus || '');
+
+                    return (
+                      <BookCard
+                        key={book._id}
+                        book={book}
+                        onClick={() => handleBookClick(book._id)}
+                        onBookmarkToggle={handleBookmarkToggle}
+                        isBookmarked={(bookmarkedBooks || []).some(b => b._id === book._id)}
+                        onUpvoteClick={handleUpvoteClick}
+                        currentUser={currentUser}
+                        readingStatus={readingStatus}
+                      />
+                    );
+                  })}
                 </div>
               )}
             </section>
@@ -339,18 +474,23 @@ const Home = () => {
               <section className="mb-12">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Featured: Fiction</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {fictionBooks.map((book) => (
-                    <BookCard
-                      key={book._id}
-                      book={book}
-                      onClick={() => handleBookClick(book._id)}
-                      onBookmarkToggle={handleBookmarkToggle}
-                      isBookmarked={(bookmarkedBooks || []).some(b => b._id === book._id)}
-                      onLikeToggle={handleLikeToggle}
-                      isLiked={(likedBooks || []).some(b => b._id === book._id)}
-                      currentUser={currentUser}
-                    />
-                  ))}
+                  {fictionBooks.map((book) => {
+                    // Prioritize the book's own readingStatus if available
+                    const readingStatus = book.readingStatus || (bookmarkedBooks.find(b => b._id === book._id)?.readingStatus || '');
+
+                    return (
+                      <BookCard
+                        key={book._id}
+                        book={book}
+                        onClick={() => handleBookClick(book._id)}
+                        onBookmarkToggle={handleBookmarkToggle}
+                        isBookmarked={(bookmarkedBooks || []).some(b => b._id === book._id)}
+                        onUpvoteClick={handleUpvoteClick}
+                        currentUser={currentUser}
+                        readingStatus={readingStatus}
+                      />
+                    );
+                  })}
                 </div>
               </section>
             )}
@@ -359,18 +499,23 @@ const Home = () => {
               <section className="mb-12">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Featured: Non-fiction</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {nonFictionBooks.map((book) => (
-                    <BookCard
-                      key={book._id}
-                      book={book}
-                      onClick={() => handleBookClick(book._id)}
-                      onBookmarkToggle={handleBookmarkToggle}
-                      isBookmarked={(bookmarkedBooks || []).some(b => b._id === book._id)}
-                      onLikeToggle={handleLikeToggle}
-                      isLiked={(likedBooks || []).some(b => b._id === book._id)}
-                      currentUser={currentUser}
-                    />
-                  ))}
+                  {nonFictionBooks.map((book) => {
+                    // Prioritize the book's own readingStatus if available
+                    const readingStatus = book.readingStatus || (bookmarkedBooks.find(b => b._id === book._id)?.readingStatus || '');
+
+                    return (
+                      <BookCard
+                        key={book._id}
+                        book={book}
+                        onClick={() => handleBookClick(book._id)}
+                        onBookmarkToggle={handleBookmarkToggle}
+                        isBookmarked={(bookmarkedBooks || []).some(b => b._id === book._id)}
+                        onUpvoteClick={handleUpvoteClick}
+                        currentUser={currentUser}
+                        readingStatus={readingStatus}
+                      />
+                    );
+                  })}
                 </div>
               </section>
             )}
@@ -379,18 +524,23 @@ const Home = () => {
               <section className="mb-12">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Featured: Fantasy</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {fantasyBooks.map((book) => (
-                    <BookCard
-                      key={book._id}
-                      book={book}
-                      onClick={() => handleBookClick(book._id)}
-                      onBookmarkToggle={handleBookmarkToggle}
-                      isBookmarked={(bookmarkedBooks || []).some(b => b._id === book._id)}
-                      onLikeToggle={handleLikeToggle}
-                      isLiked={(likedBooks || []).some(b => b._id === book._id)}
-                      currentUser={currentUser}
-                    />
-                  ))}
+                  {fantasyBooks.map((book) => {
+                    // Prioritize the book's own readingStatus if available
+                    const readingStatus = book.readingStatus || (bookmarkedBooks.find(b => b._id === book._id)?.readingStatus || '');
+
+                    return (
+                      <BookCard
+                        key={book._id}
+                        book={book}
+                        onClick={() => handleBookClick(book._id)}
+                        onBookmarkToggle={handleBookmarkToggle}
+                        isBookmarked={(bookmarkedBooks || []).some(b => b._id === book._id)}
+                        onUpvoteClick={handleUpvoteClick}
+                        currentUser={currentUser}
+                        readingStatus={readingStatus}
+                      />
+                    );
+                  })}
                 </div>
               </section>
             )}
@@ -465,6 +615,17 @@ const Home = () => {
          </>
       )}
       </div>
+
+      {/* FAQ Section */}
+      <section className="my-20 py-16 px-4 bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 rounded-3xl shadow-xl">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-4 text-blue-800">Frequently Asked Questions</h2>
+          <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+            Find answers to common questions about our platform and services
+          </p>
+          <FAQAccordion faqs={faqData} />
+        </div>
+      </section>
    </motion.div>
 );
 }

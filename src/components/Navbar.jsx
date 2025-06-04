@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaBars, FaTimes, FaUserCircle } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
+import logo from '../assets/logo.png'; // Import the logo image
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,7 +42,8 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
-          <Link to="/" className="text-2xl font-bold text-blue-600">
+          <Link to="/" className="flex items-center text-2xl font-bold text-blue-600">
+            <img src={logo} alt="BookHaven Logo" className="h-10 w-auto mr-2" />
             BookHaven
           </Link>
 

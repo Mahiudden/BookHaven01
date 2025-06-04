@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaStar, FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
+import { FaStar, FaThumbsUp, FaThumbsDown, FaEdit, FaTrash } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'react-hot-toast';
+import Rating from './Rating';
 
-const ReviewCard = ({ review, onLike, onDislike, currentUser }) => {
+const ReviewCard = ({ review, onLike, onDislike, currentUser, onEdit, onDelete }) => {
   const {
     _id,
     userEmail,
@@ -19,6 +20,11 @@ const ReviewCard = ({ review, onLike, onDislike, currentUser }) => {
     userDisliked,
   } = review;
   
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedReviewText, setEditedReviewText] = useState(reviewText);
+  const [editedRating, setEditedRating] = useState(rating);
+
+  const isReviewOwner = currentUser && userEmail === currentUser.email;
 
   const handleLikeClick = () => {
     if (currentUser && currentUser.email === userEmail) {
@@ -37,6 +43,13 @@ const ReviewCard = ({ review, onLike, onDislike, currentUser }) => {
     }
     if (onDislike && _id) {
       onDislike(_id, !userDisliked);
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (onEdit && _id) {
+      await onEdit(_id, { reviewText: editedReviewText, rating: editedRating });
+      setIsEditing(false);
     }
   };
 
@@ -75,14 +88,64 @@ const ReviewCard = ({ review, onLike, onDislike, currentUser }) => {
             </div>
           </div>
         </div>
-        {currentUser && currentUser.email === userEmail && (
-          <div className="text-sm text-gray-500">
-            {/* Add edit/delete buttons here */}
+        {isReviewOwner && !isEditing && (
+          <div className="flex space-x-3">
+            <button
+              onClick={() => setIsEditing(true)}
+              className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+              aria-label="Edit review"
+            >
+              <FaEdit className="mr-1"/> Edit
+            </button>
+            <button
+              onClick={() => onDelete(_id)}
+              className="flex items-center text-red-600 hover:text-red-800 transition-colors"
+              aria-label="Delete review"
+            >
+              <FaTrash className="mr-1"/> Delete
+            </button>
           </div>
         )}
       </div>
 
-      <p className="text-gray-700 leading-relaxed mb-4">{reviewText}</p>
+      {isEditing ? (
+        <div className="mt-3 space-y-3">
+          <div>
+            <label htmlFor="editedRating" className="block text-sm font-medium text-gray-700">Your Rating</label>
+            <Rating value={editedRating} onChange={setEditedRating} size="md" />
+          </div>
+          <div>
+            <label htmlFor="editedReviewText" className="sr-only">Edit Review</label>
+            <textarea
+              id="editedReviewText"
+              rows="3"
+              className="mt-1 block w-full text-black p-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              value={editedReviewText}
+              onChange={(e) => setEditedReviewText(e.target.value)}
+              placeholder="Edit your review..."
+              required
+            ></textarea>
+          </div>
+          <div className="flex justify-end space-x-3">
+            <button
+              type="button"
+              onClick={() => setIsEditing(false)}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSaveEdit}
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+      ) : (
+        <p className="text-gray-700 leading-relaxed mb-4">{reviewText}</p>
+      )}
 
       <div className="flex items-center space-x-4 text-sm">
         <motion.button

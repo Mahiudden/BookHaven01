@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, updateProfile } from 'firebase/auth';
+import { onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, updateProfile, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../firebase';
 import { toast } from 'react-hot-toast';
 
@@ -77,6 +77,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const resetPassword = async (email) => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast.success('Password reset email sent! Check your inbox.');
+    } catch (error) {
+      toast.error(error.message);
+      throw error;
+    }
+  };
+
   const value = {
     currentUser,
     loading,
@@ -85,6 +95,7 @@ export const AuthProvider = ({ children }) => {
     register,
     loginWithGoogle,
     logout,
+    resetPassword,
   };
 
   return (

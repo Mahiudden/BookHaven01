@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { FaSpinner, FaSort, FaFilter, FaSearch } from 'react-icons/fa';
@@ -13,7 +13,7 @@ const sortOptions = [
   { label: 'Newest First', value: 'newest' },
   { label: 'Oldest First', value: 'oldest' },
   { label: 'Most Popular', value: 'popular' },
-  { label: 'Highest Rated', value: 'rating' },
+  // { label: 'Highest Rated', value: 'rating' },
   { label: 'Title A-Z', value: 'title_asc' },
   { label: 'Title Z-A', value: 'title_desc' }
 ];
@@ -21,9 +21,9 @@ const sortOptions = [
 const filterOptions = {
   status: [
     { label: 'All', value: 'all' },
-    { label: 'Currently Reading', value: 'reading' },
-    { label: 'Want to Read', value: 'want_to_read' },
-    { label: 'Completed', value: 'completed' }
+    { label: 'Reading', value: 'Reading' },
+    { label: 'Want to Read', value: 'Want-to-Read' },
+    { label: 'Read', value: 'Read' }
   ],
   category: [
     'All',
@@ -57,7 +57,8 @@ const Bookshelf = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [filters, setFilters] = useState({
     status: 'all',
-    category: 'All'
+    category: 'All',
+    readingStatus: 'all'
   });
   const [sortBy, setSortBy] = useState('newest');
   const [showFilters, setShowFilters] = useState(false);
@@ -65,13 +66,37 @@ const Bookshelf = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalBooks, setTotalBooks] = useState(0);
   const [bookmarkedBooks, setBookmarkedBooks] = useState([]);
-  const [likedBooks, setLikedBooks] = useState([]);
 
   useEffect(() => {
+    // Fetch public books for Bookshelf, or user's books for My Books
     fetchBooks();
+    // Fetch bookmarked books only if logged in
     fetchBookmarkedBooks();
-    fetchLikedBooks();
   }, [currentPage, filters, sortBy, currentUser, idToken]);
+
+  // Effect to handle redirection and state reset on logout
+  useEffect(() => {
+    if (!currentUser && !loading) { // Check if currentUser is null and initial loading is done
+      // This effect should primarily handle redirection *away* from protected pages like /my-books
+      // if the user logs out.
+
+      // Redirect to login ONLY if on /my-books and currentUser becomes null
+      if (window.location.pathname === '/my-books') {
+         navigate('/login');
+      }
+      // For /bookshelf, just reset states if currentUser becomes null (though fetchBooks should handle public view)
+      if (window.location.pathname === '/bookshelf' && books.length > 0 && bookmarkedBooks.length > 0) { // Prevent unnecessary resets on initial load
+         setBooks([]);
+         setBookmarkedBooks([]);
+         // Optionally reset other filters/pagination if needed, but fetchBooks should refresh
+         // setFilters({ status: 'all', category: 'All', readingStatus: 'all' });
+         // setSortBy('newest');
+         // setCurrentPage(1);
+         // setTotalPages(1);
+         // setTotalBooks(0);
+      }
+    }
+  }, [currentUser, loading, navigate, window.location.pathname]); // Add window.location.pathname to dependencies
 
   const fetchBooks = async () => {
     try {
@@ -81,8 +106,14 @@ const Bookshelf = () => {
         limit: 12,
         sort: sortBy,
         status: filters.status,
-        category: filters.category === 'All' ? '' : filters.category
+        category: filters.category === 'All' ? '' : filters.category,
+        readingStatus: filters.readingStatus === 'all' ? '' : filters.readingStatus
       });
+
+      // Add userEmail parameter if we're on the My Books page
+      if (window.location.pathname === '/my-books' && currentUser) {
+        queryParams.append('userEmail', currentUser.email);
+      }
 
       const response = await axios.get(`http://localhost:5000/api/books?${queryParams}`);
       setBooks(response.data.books);
@@ -109,21 +140,6 @@ const Bookshelf = () => {
       setBookmarkedBooks(response.data);
     } catch (error) {
       console.error('Error fetching bookmarked books:', error);
-    }
-  };
-
-  const fetchLikedBooks = async () => {
-    if (!currentUser || !idToken) {
-      setLikedBooks([]);
-      return;
-    }
-    try {
-      const response = await axios.get('http://localhost:5000/api/users/likes', {
-        headers: { Authorization: `Bearer ${idToken}` }
-      });
-      setLikedBooks(response.data);
-    } catch (error) {
-      console.error('Error fetching liked books:', error);
     }
   };
 
@@ -210,35 +226,42 @@ const Bookshelf = () => {
     }
   };
 
-  const handleLikeToggle = async (book) => {
+  const handleUpvoteClick = async (book) => {
     if (!currentUser || !idToken) {
       navigate('/login');
       return;
     }
 
     if (book.userEmail === currentUser.email) {
-        toast.error('Cannot like your own book');
+        toast.error('Cannot upvote your own book');
         return;
     }
 
-    const isCurrentlyLiked = (likedBooks || []).some(b => b._id === book._id);
-    const method = isCurrentlyLiked ? 'delete' : 'post';
-    const url = `http://localhost:5000/api/books/${book._id}/like`;
+    const url = `http://localhost:5000/api/books/${book._id}/upvote`;
 
     try {
-      await axios({ method, url, headers: { Authorization: `Bearer ${idToken}` } });
+      const response = await axios.post(url, {}, { headers: { Authorization: `Bearer ${idToken}` } });
 
-      if (isCurrentlyLiked) {
-        setLikedBooks((likedBooks || []).filter(b => b._id !== book._id));
-        toast.success('Book unliked');
-      } else {
-        setLikedBooks([...(likedBooks || []), book]);
-        toast.success('Book liked');
-      }
+      setBooks(prevBooks => 
+        prevBooks.map(b => 
+          b._id === book._id ? { ...b, upvote: response.data.book.upvote } : b
+        )
+      );
+      setBookmarkedBooks(prevBooks => 
+        prevBooks.map(b => 
+          b._id === book._id ? { ...b, upvote: response.data.book.upvote } : b
+        )
+      );
+
+      toast.success('Book upvoted successfully!');
 
     } catch (error) {
-      console.error('Error toggling like:', error);
-      toast.error(error.response?.data?.message || 'Failed to update like');
+      console.error('Error upvoting book:', error);
+      if (error.response?.data?.message === "You can't upvote your own book") {
+        toast.error("You can't upvote your own book!");
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to upvote book');
+      }
     }
   };
 
@@ -279,6 +302,26 @@ const Bookshelf = () => {
           </div>
           {/* Updated Filter and Sort controls with improved styling */}
           <div className="flex flex-wrap items-center gap-4">
+            {/* Reading Status Filter Dropdown */}
+            <div className="relative">
+              <label htmlFor="reading-status-filter" className="sr-only">Reading Status</label>
+              <select
+                id="reading-status-filter"
+                value={filters.readingStatus}
+                onChange={(e) => handleFilterChange('readingStatus', e.target.value)}
+                className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-colors cursor-pointer"
+              >
+                <option value="all">All Reading Status</option>
+                {filterOptions.status.filter(status => status.value !== 'all').map(status => (
+                  <option key={status.value} value={status.value}>
+                    {status.label}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+              </div>
+            </div>
             {/* Category Filter Dropdown */}
               <div className="relative">
                  <label htmlFor="category-filter" className="sr-only">Category</label>
@@ -330,18 +373,23 @@ const Bookshelf = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {books.map(book => (
-              <BookCard
-                key={book._id}
-                book={book}
-                onClick={() => handleBookClick(book._id)}
-                onBookmarkToggle={handleBookmarkToggle}
-                isBookmarked={(bookmarkedBooks || []).some(b => b._id === book._id)}
-                onLikeToggle={handleLikeToggle}
-                isLiked={(likedBooks || []).some(b => b._id === book._id)}
-                currentUser={currentUser}
-              />
-            ))}
+            {books.map((book) => {
+              // Prioritize the book's own readingStatus if available
+              const readingStatus = book.readingStatus || (bookmarkedBooks.find(b => b._id === book._id)?.readingStatus || '');
+
+              return (
+                <BookCard
+                  key={book._id}
+                  book={book}
+                  onClick={() => handleBookClick(book._id)}
+                  onBookmarkToggle={handleBookmarkToggle}
+                  isBookmarked={(bookmarkedBooks || []).some(b => b._id === book._id)}
+                  onUpvoteClick={handleUpvoteClick}
+                  currentUser={currentUser}
+                  readingStatus={readingStatus}
+                />
+              );
+            })}
           </div>
         )}
       </div>

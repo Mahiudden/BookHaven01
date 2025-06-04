@@ -97,17 +97,17 @@ const SearchBar = ({ onSearch, value, onChange, placeholder = 'Search...', isLoa
     <div className="relative w-full max-w-2xl mx-auto" ref={searchRef}>
       <form onSubmit={handleSubmit} className="relative">
         <div className="relative">
-          <input
-            type="text"
-            value={value}
+        <input
+          type="text"
+          value={value}
             onChange={handleInputChange}
             onFocus={() => setShowSuggestions(true)}
-            placeholder={placeholder}
-            className="w-full px-4 py-3 pl-12 pr-12 text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-          />
-          <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-            <FaSearch className="text-gray-400" />
-          </div>
+          placeholder={placeholder}
+          className="w-full px-4 py-3 pl-12 pr-12 text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+        />
+        <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+          <FaSearch className="text-gray-400" />
+        </div>
           {value && (
             <button
               onClick={handleClear}
@@ -118,9 +118,9 @@ const SearchBar = ({ onSearch, value, onChange, placeholder = 'Search...', isLoa
           )}
           {isLoading && (
             <div className="absolute inset-y-0 right-0 flex items-center pr-12">
-              <FaSpinner className="animate-spin text-blue-500" />
-            </div>
-          )}
+            <FaSpinner className="animate-spin text-blue-500" />
+          </div>
+        )}
         </div>
       </form>
 

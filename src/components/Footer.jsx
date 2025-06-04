@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaTwitter, FaFacebook, FaInstagram, FaLinkedin } from 'react-icons/fa';
+import logo from '../assets/logo.png'; // Import the logo image
 
 const Footer = () => {
   const socialLinks = [
@@ -30,7 +31,8 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo and Description */}
           <div className="space-y-4">
-            <Link to="/" className="text-2xl font-bold text-blue-400">
+            <Link to="/" className="flex items-center text-2xl font-bold text-blue-400">
+              <img src={logo} alt="BookHaven Logo" className="h-10 w-auto mr-2" />
               BookHaven
             </Link>
             <p className="text-sm leading-relaxed">
