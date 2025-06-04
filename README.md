@@ -1,12 +1,108 @@
-# React + Vite
+# Virtual Bookshelf - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the frontend application for the Virtual Bookshelf project, built with React and Tailwind CSS.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Browse books by categories.
+- Search for books by title or author.
+- View detailed information about a book.
+- Read and write reviews for books.
+- Like and bookmark books (requires login).
+- User authentication (Login/Register).
+- User profile page.
+- Bookshelf page to manage owned, bookmarked, and liked books.
 
-## Expanding the ESLint configuration
+## Technologies Used
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **React:** JavaScript library for building user interfaces.
+- **Tailwind CSS:** A utility-first CSS framework for styling.
+- **React Router DOM:** For handling navigation.
+- **Axios:** Promise-based HTTP client for making API requests.
+- **Firebase Authentication:** For user login and registration.
+- **Framer Motion:** For animations.
+- **date-fns:** For date formatting.
+
+## Setup
+
+Follow these steps to get the frontend application running locally.
+
+### Prerequisites
+
+- Node.js and npm (or yarn) installed.
+- The backend server (from the main project) must be running.
+
+### Installation
+
+1. Clone the repository (if you haven't already):
+   ```bash
+   git clone <repository_url>
+   cd <repository_directory>
+   ```
+
+2. Navigate to the `client` directory:
+   ```bash
+   cd client
+   ```
+
+3. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+4. Create a `.env` file in the `client` directory and add your Firebase configuration and backend API URL:
+   ```env
+   REACT_APP_FIREBASE_API_KEY=YOUR_FIREBASE_API_KEY
+   REACT_APP_FIREBASE_AUTH_DOMAIN=YOUR_FIREBASE_AUTH_DOMAIN
+   REACT_APP_FIREBASE_PROJECT_ID=YOUR_FIREBASE_PROJECT_ID
+   REACT_APP_FIREBASE_STORAGE_BUCKET=YOUR_FIREBASE_STORAGE_BUCKET
+   REACT_APP_FIREBASE_MESSAGING_SENDER_ID=YOUR_FIREBASE_MESSAGING_SENDER_ID
+   REACT_APP_FIREBASE_APP_ID=YOUR_FIREBASE_APP_ID
+   REACT_APP_FIREBASE_MEASUREMENT_ID=YOUR_FIREBASE_MEASUREMENT_ID
+   REACT_APP_BACKEND_API_URL=http://localhost:5000 # Or your backend server URL
+   ```
+   Replace the placeholder values with your actual Firebase project details.
+
+### Running the Development Server
+
+1. Make sure you are in the `client` directory.
+2. Start the development server:
+   ```bash
+   npm start
+   # or
+   yarn start
+   ```
+
+The application should now be running at `http://localhost:3000` (or another port if 3000 is in use).
+
+## Project Structure
+
+```
+client/
+├── public/
+├── src/
+│   ├── assets/
+│   ├── components/  # Reusable UI components
+│   ├── context/     # React Context for state management (e.g., AuthContext)
+│   ├── hooks/       # Custom React hooks
+│   ├── pages/       # Route components
+│   ├── utils/       # Utility functions
+│   ├── App.jsx      # Main application component and routing
+│   ├── index.js     # Entry point
+│   ├── styles.css   # Tailwind CSS main file
+│   └── ...
+├── package.json
+├── README.md
+├── tailwind.config.js
+└── ...
+```
+
+## Contributing
+
+Describe how others can contribute to your project (optional).
+
+## License
+
+Specify the license for your project (optional).
