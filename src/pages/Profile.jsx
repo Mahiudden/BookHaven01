@@ -199,6 +199,50 @@ const Profile = () => {
     }));
   };
 
+  const handleBookClick = (bookId) => {
+    navigate(`/book/${bookId}`);
+  };
+
+  // Add handleUpvoteClick function
+  const handleUpvoteClick = async (book) => {
+    if (!currentUser || !idToken) {
+      navigate('/login');
+      return;
+    }
+
+    if (book.userEmail === currentUser.email) {
+      toast.error("You can't upvote your own book!");
+      return;
+    }
+
+    const url = `https://server-api-three.vercel.app/api/books/${book._id}/upvote`;
+
+    try {
+      const response = await axios.post(url, {}, { headers: { Authorization: `Bearer ${idToken}` } });
+
+      // Update both bookmarks and bookmarkedBooks states
+      setBookmarks(prevBooks => 
+        prevBooks.map(b => 
+          b._id === book._id ? { ...b, upvote: response.data.book.upvote } : b
+        )
+      );
+      setBookmarkedBooks(prevBooks => 
+        prevBooks.map(b => 
+          b._id === book._id ? { ...b, upvote: response.data.book.upvote } : b
+        )
+      );
+
+      toast.success('Book upvoted successfully!');
+    } catch (error) {
+      console.error('Error upvoting book:', error);
+      if (error.response?.data?.message === "You can't upvote your own book") {
+        toast.error("You can't upvote your own book!");
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to upvote book');
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -461,8 +505,10 @@ const Profile = () => {
                 <BookCard
                   key={book._id}
                   book={book}
+                  onClick={() => handleBookClick(book._id)}
                   onBookmarkToggle={handleBookmarkToggle}
                   isBookmarked={(bookmarkedBooks || []).some(b => b._id === book._id)}
+                  onUpvoteClick={handleUpvoteClick}
                   currentUser={currentUser}
                   readingStatus={book.readingStatus}
                 />

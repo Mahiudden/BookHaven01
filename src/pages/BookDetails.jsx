@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
-import { FaStar, FaBookmark, FaShare,FaFacebook,FaTwitter,FaLinkedin, FaRegBookmark, FaArrowUp } from 'react-icons/fa';
+import { FaStar, FaBookmark, FaShare, FaFacebook, FaTwitter, FaLinkedin, FaRegBookmark, FaArrowUp, FaWhatsapp, FaTelegram, FaLink, FaCopy, FaCheck } from 'react-icons/fa';
 import BookCard from '../components/BookCard';
 import ReviewCard from '../components/ReviewCard';
 import Rating from '../components/Rating';
@@ -29,6 +29,8 @@ const BookDetails = () => {
   const [relatedBooks, setRelatedBooks] = useState([]);
   const [showReviewInput, setShowReviewInput] = useState(false);
   const [bookmarkedBooks, setBookmarkedBooks] = useState([]);
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [shareUrl, setShareUrl] = useState('');
 
   useEffect(() => {
     const fetchBookDetails = async () => {
@@ -73,6 +75,13 @@ const BookDetails = () => {
     // TODO: Fetch related books
 
   }, [id, currentUser, idToken]);
+
+  useEffect(() => {
+    // Set the share URL when the component mounts or book changes
+    if (book) {
+      setShareUrl(`${window.location.origin}/book/${book._id}`);
+    }
+  }, [book]);
 
   // Function to handle review editing
   const handleEditReview = async (reviewId, updatedReviewData) => {
@@ -274,8 +283,46 @@ const BookDetails = () => {
   };
 
   const handleShare = async (platform) => {
-    toast.info(`Sharing to ${platform}...`);
+    const shareText = `Check out "${book.bookTitle}" by ${book.bookAuthor} on BookHaven!`;
+    const encodedUrl = encodeURIComponent(shareUrl);
+    const encodedText = encodeURIComponent(shareText);
+
+    let shareLink = '';
+    switch (platform) {
+      case 'Facebook':
+        shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+        break;
+      case 'Twitter':
+        shareLink = `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`;
+        break;
+      case 'LinkedIn':
+        shareLink = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
+        break;
+      case 'WhatsApp':
+        shareLink = `https://wa.me/?text=${encodedText}%20${encodedUrl}`;
+        break;
+      case 'Telegram':
+        shareLink = `https://t.me/share/url?url=${encodedUrl}&text=${encodedText}`;
+        break;
+      default:
+        break;
+    }
+
+    if (shareLink) {
+      window.open(shareLink, '_blank', 'width=600,height=400');
+    }
     setIsShareModalOpen(false);
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopySuccess(true);
+      toast.success('Link copied to clipboard!');
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (err) {
+      toast.error('Failed to copy link');
+    }
   };
 
   const handleDeleteBook = async () => {
@@ -613,43 +660,109 @@ const BookDetails = () => {
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
         title="Share This Book"
+        size="md"
       >
-        <div className="space-y-4">
-           <p>Choose a platform to share:</p>
-           <div className="flex gap-4">
-             <motion.button
-               whileHover={{ scale: 1.1 }}
-               whileTap={{ scale: 0.9 }}
-               onClick={() => handleShare('Facebook')}
-               className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md"
-             >
-                <FaFacebook className="mr-2"/> Facebook
-             </motion.button>
+        <div className="p-6">
+          {/* Book Preview */}
+          <div className="flex items-center space-x-4 mb-6 p-4 bg-gray-50 rounded-lg">
+            <img
+              src={book.coverImage || 'https://via.placeholder.com/100x150?text=No+Cover'}
+              alt={book.bookTitle}
+              className="w-20 h-30 object-cover rounded shadow-md"
+            />
+            <div>
+              <h3 className="font-semibold text-gray-900">{book.bookTitle}</h3>
+              <p className="text-sm text-gray-600">by {book.bookAuthor}</p>
+            </div>
+          </div>
+
+          {/* Copy Link Section */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Share Link</label>
+            <div className="flex items-center space-x-2">
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  value={shareUrl}
+                  readOnly
+                  className="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  onClick={handleCopyLink}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5 text-gray-500 hover:text-blue-600 transition-colors"
+                  title="Copy link"
+                >
+                  {copySuccess ? <FaCheck className="text-green-500" /> : <FaCopy />}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Share Options */}
+          <div className="space-y-4">
+            <h4 className="text-sm font-medium text-gray-700 mb-3">Share via</h4>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               <motion.button
-               whileHover={{ scale: 1.1 }}
-               whileTap={{ scale: 0.9 }}
-               onClick={() => handleShare('Twitter')}
-               className="flex items-center px-4 py-2 bg-blue-400 text-white rounded-md"
-             >
-                <FaTwitter className="mr-2"/> Twitter
-             </motion.button>
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleShare('Facebook')}
+                className="flex items-center justify-center space-x-2 px-4 py-3 bg-[#1877F2] text-white rounded-lg hover:bg-[#1877F2]/90 transition-colors"
+              >
+                <FaFacebook className="text-xl" />
+                <span>Facebook</span>
+              </motion.button>
+
               <motion.button
-               whileHover={{ scale: 1.1 }}
-               whileTap={{ scale: 0.9 }}
-               onClick={() => handleShare('LinkedIn')}
-               className="flex items-center px-4 py-2 bg-blue-700 text-white rounded-md"
-             >
-                <FaLinkedin className="mr-2"/> LinkedIn
-             </motion.button>
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleShare('Twitter')}
+                className="flex items-center justify-center space-x-2 px-4 py-3 bg-[#1DA1F2] text-white rounded-lg hover:bg-[#1DA1F2]/90 transition-colors"
+              >
+                <FaTwitter className="text-xl" />
+                <span>Twitter</span>
+              </motion.button>
+
               <motion.button
-               whileHover={{ scale: 1.1 }}
-               whileTap={{ scale: 0.9 }}
-               onClick={() => handleShare('Email')}
-               className="flex items-center px-4 py-2 bg-gray-400 text-gray-800 rounded-md"
-            >
-                Share via Email
-             </motion.button>
-           </div>
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleShare('LinkedIn')}
+                className="flex items-center justify-center space-x-2 px-4 py-3 bg-[#0A66C2] text-white rounded-lg hover:bg-[#0A66C2]/90 transition-colors"
+              >
+                <FaLinkedin className="text-xl" />
+                <span>LinkedIn</span>
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleShare('WhatsApp')}
+                className="flex items-center justify-center space-x-2 px-4 py-3 bg-[#25D366] text-white rounded-lg hover:bg-[#25D366]/90 transition-colors"
+              >
+                <FaWhatsapp className="text-xl" />
+                <span>WhatsApp</span>
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleShare('Telegram')}
+                className="flex items-center justify-center space-x-2 px-4 py-3 bg-[#0088cc] text-white rounded-lg hover:bg-[#0088cc]/90 transition-colors"
+              >
+                <FaTelegram className="text-xl" />
+                <span>Telegram</span>
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleCopyLink}
+                className="flex items-center justify-center space-x-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                <FaLink className="text-xl" />
+                <span>Copy Link</span>
+              </motion.button>
+            </div>
+          </div>
         </div>
       </Modal>
 
