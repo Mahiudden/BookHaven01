@@ -2,6 +2,8 @@
 
 This is the frontend application for the Virtual Bookshelf project, built with React and Tailwind CSS.
 
+## live url: https://my-assinment11.web.app/
+
 ## Features
 
 - Browse books by categories.
@@ -36,7 +38,7 @@ Follow these steps to get the frontend application running locally.
 
 1. Clone the repository (if you haven't already):
    ```bash
-   git clone <repository_url>
+   git clone https://github.com/Programming-Hero-Web-Course4/b11a11-client-side-Mahiudden.git
    cd <repository_directory>
    ```
 
@@ -75,7 +77,7 @@ Follow these steps to get the frontend application running locally.
    yarn start
    ```
 
-The application should now be running at `http://localhost:3000` (or another port if 3000 is in use).
+The application should now be running at `http://localhost:5173` (or another port if 3000 is in use).
 
 ## Project Structure
 
