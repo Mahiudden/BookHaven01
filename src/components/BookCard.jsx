@@ -19,7 +19,7 @@ const BookCard = ({ book, onClick, onBookmarkToggle, isBookmarked, onUpvoteClick
     switch (status) {
       case 'Reading':
         return 'bg-blue-500';
-      case 'Completed':
+      case 'Read':
         return 'bg-green-500';
       case 'Want-to-Read':
         return 'bg-purple-500';

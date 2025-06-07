@@ -442,13 +442,13 @@ const BookDetails = () => {
                    </button>
 
                    <button
-                    onClick={() => handleStatusChange('Completed')}
+                    onClick={() => handleStatusChange('Read')}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 ${
-                      book.readingStatus === 'Completed' ? 'bg-green-600 text-white' : 'bg-gray-300 hover:bg-gray-400 text-gray-800'
+                      book.readingStatus === 'Read' ? 'bg-green-600 text-white' : 'bg-gray-300 hover:bg-gray-400 text-gray-800'
                     }`}
-                    disabled={book.readingStatus === 'Completed'}
+                    disabled={book.readingStatus === 'Read'}
                    >
-                    Completed
+                    Read
                    </button>
 
                    <button
@@ -479,7 +479,7 @@ const BookDetails = () => {
                 {book.readingStatus ? (
                   <span className={`px-4 py-2 rounded-full text-sm font-medium ${
                     book.readingStatus === 'Reading' ? 'bg-blue-600 text-white' :
-                    book.readingStatus === 'Completed' ? 'bg-green-600 text-white' :
+                    book.readingStatus === 'Read' ? 'bg-green-600 text-white' :
                     'bg-purple-600 text-white'
                   }`}>
                     {book.readingStatus}

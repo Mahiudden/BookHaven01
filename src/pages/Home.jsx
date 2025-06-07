@@ -469,6 +469,7 @@ const Home = () => {
               )}
             </section>
 
+
             {/* Featured Categories Sections */}
             {fictionBooks.length > 0 && (
               <section className="mb-12">
