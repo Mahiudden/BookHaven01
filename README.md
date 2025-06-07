@@ -79,6 +79,7 @@ Follow these steps to get the frontend application running locally.
 
 The application should now be running at `http://localhost:5173` (or another port if 3000 is in use).
 
+
 ## Project Structure
 
 ```
