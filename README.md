@@ -69,6 +69,7 @@ Follow these steps to get the frontend application running locally.
 
 ### Running the Development Server
 
+
 1. Make sure you are in the `client` directory.
 2. Start the development server:
    ```bash
