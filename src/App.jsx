@@ -135,6 +135,7 @@ function AppContent() {
                 </ProtectedRoute>
               }
             />
+
             <Route
               path="/edit-book/:id"
               element={

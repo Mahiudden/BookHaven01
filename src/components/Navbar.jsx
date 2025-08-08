@@ -48,6 +48,7 @@ const Navbar = () => {
   const protectedNavLinks = [
     { name: 'My Books', path: '/my-books', icon: FaHeart },
     { name: 'Add Book', path: '/add-book', icon: FaBook },
+    { name: 'Profile', path: '/profile', icon: FaUser },
   ];
 
   const allNavLinks = [...publicNavLinks, ...protectedNavLinks];
@@ -189,15 +190,15 @@ const Navbar = () => {
               </AnimatePresence>
             </div>
             {allNavLinks.map((link) =>
-              link.name === 'Add Book' || link.name === 'My Books' ? 
+              (link.name === 'Add Book' || link.name === 'My Books' || link.name === 'Profile') ?
                 (currentUser ? (
                   <NavLink
                     key={link.name}
                     to={link.path}
                     className={({ isActive }) =>
                       `flex items-center relative transition-all duration-200 ${
-                        isActive 
-                          ? `${isDarkMode ? 'text-blue-400' : 'text-blue-600'} font-semibold after:absolute after:bottom-[-8px] after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full` 
+                        isActive
+                          ? `${isDarkMode ? 'text-blue-400' : 'text-blue-600'} font-semibold after:absolute after:bottom-[-8px] after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full`
                           : `${isDarkMode ? 'text-gray-300 hover:text-blue-400' : 'text-gray-700 hover:text-blue-600'} hover:after:absolute hover:after:bottom-[-8px] hover:after:left-0 hover:after:w-full hover:after:h-0.5 hover:after:bg-blue-500/50 hover:after:rounded-full`
                       }`
                     }
@@ -211,8 +212,8 @@ const Navbar = () => {
                     to={link.path}
                     className={({ isActive }) =>
                       `flex items-center relative transition-all duration-200 ${
-                        isActive 
-                          ? `${isDarkMode ? 'text-blue-400' : 'text-blue-600'} font-semibold after:absolute after:bottom-[-8px] after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full` 
+                        isActive
+                          ? `${isDarkMode ? 'text-blue-400' : 'text-blue-600'} font-semibold after:absolute after:bottom-[-8px] after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full`
                           : `${isDarkMode ? 'text-gray-300 hover:text-blue-400' : 'text-gray-700 hover:text-blue-600'} hover:after:absolute hover:after:bottom-[-8px] hover:after:left-0 hover:after:w-full hover:after:h-0.5 hover:after:bg-blue-500/50 hover:after:rounded-full`
                       }`
                     }
@@ -269,18 +270,6 @@ const Navbar = () => {
                         isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
                       }`}
                     >
-                      <Link
-                        to="/profile"
-                        onClick={() => setIsDropdownOpen(false)}
-                        className={`block px-4 py-2 text-sm transition-colors duration-200 ${
-                          isDarkMode 
-                            ? 'text-gray-300 hover:bg-gray-700 hover:text-blue-400' 
-                            : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'
-                        }`}
-                      >
-                        <FaUser className="inline mr-2" />
-                        Profile
-                      </Link>
                       {/* Removed My Books from dropdown as requested */}
                       <button
                         onClick={handleLogout}
@@ -352,7 +341,7 @@ const Navbar = () => {
             >
               <nav className="flex flex-col space-y-4 px-4 py-4">
                 {allNavLinks.map((link) =>
-                  link.name === 'Add Book' || link.name === 'My Books' ? 
+                  (link.name === 'Add Book' || link.name === 'My Books' || link.name === 'Profile') ?
                     (currentUser ? (
                       <NavLink
                         key={link.name}
@@ -360,8 +349,8 @@ const Navbar = () => {
                         onClick={toggleMenu}
                         className={({ isActive }) =>
                           `flex items-center relative transition-all duration-200 ${
-                            isActive 
-                              ? `${isDarkMode ? 'text-blue-400' : 'text-blue-600'} font-semibold after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full` 
+                            isActive
+                              ? `${isDarkMode ? 'text-blue-400' : 'text-blue-600'} font-semibold after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full`
                               : `${isDarkMode ? 'text-gray-300 hover:text-blue-400' : 'text-gray-700 hover:text-blue-600'} hover:after:absolute hover:after:bottom-[-4px] hover:after:left-0 hover:after:w-full hover:after:h-0.5 hover:after:bg-blue-500/50 hover:after:rounded-full`
                           }`
                         }
@@ -376,8 +365,8 @@ const Navbar = () => {
                         onClick={toggleMenu}
                         className={({ isActive }) =>
                           `flex items-center relative transition-all duration-200 ${
-                            isActive 
-                              ? `${isDarkMode ? 'text-blue-400' : 'text-blue-600'} font-semibold after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full` 
+                            isActive
+                              ? `${isDarkMode ? 'text-blue-400' : 'text-blue-600'} font-semibold after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-0.5 after:bg-blue-500 after:rounded-full`
                               : `${isDarkMode ? 'text-gray-300 hover:text-blue-400' : 'text-gray-700 hover:text-blue-600'} hover:after:absolute hover:after:bottom-[-4px] hover:after:left-0 hover:after:w-full hover:after:h-0.5 hover:after:bg-blue-500/50 hover:after:rounded-full`
                           }`
                         }
@@ -386,22 +375,6 @@ const Navbar = () => {
                         {link.name}
                       </NavLink>
                     )
-                )}
-
-                {/* User Profile Link for Mobile */}
-                {currentUser && (
-                  <Link
-                    to="/profile"
-                    onClick={toggleMenu}
-                    className={`flex items-center relative transition-all duration-200 ${
-                      isDarkMode 
-                        ? 'text-gray-300 hover:text-blue-400' 
-                        : 'text-gray-700 hover:text-blue-600'
-                    }`}
-                  >
-                    <FaUser className="mr-3 h-5 w-5" />
-                    Profile
-                  </Link>
                 )}
 
                 {/* Login/Logout Button for Mobile */}
