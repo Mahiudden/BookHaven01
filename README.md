@@ -101,10 +101,4 @@ client/
 └── ...
 ```
 
-## Contributing
 
-Describe how others can contribute to your project (optional).
-
-## License
-
-Specify the license for your project (optional).
