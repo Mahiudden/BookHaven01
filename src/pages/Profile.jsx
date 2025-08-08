@@ -306,7 +306,7 @@ const Profile = () => {
       className="container mx-auto px-4 py-8"
     >
       {/* Profile Header or Edit Form */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8 dark:text-white">
         {profileData && (
           
           <>
@@ -331,8 +331,8 @@ const Profile = () => {
 
                 {/* Profile Info */}
                 <div className="flex-1 text-center md:text-left">
-                  <h1 className="text-3xl font-bold mb-2 text-black">{profileData.displayName}</h1>
-                  <p className="text-gray-600 mb-4">{profileData.bio || 'No bio yet'}</p>
+                  <h1 className="text-3xl font-bold mb-2 text-black dark:text-white">{profileData.displayName}</h1>
+                  <p className="text-gray-600 dark:text-gray-300 mb-4">{profileData.bio || 'No bio yet'}</p>
                   {/* Stats - Removed inline stats, will be shown in tab content */}
                   {/* <div className="flex flex-wrap gap-4 justify-center md:justify-start">
                     <div className="text-center">
@@ -358,7 +358,7 @@ const Profile = () => {
               // Edit Profile Form
               <form onSubmit={handleProfileUpdate} className="space-y-4">
                 <div>
-                  <label htmlFor="displayName" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Display Name:
                   </label>
                   <input
@@ -367,12 +367,12 @@ const Profile = () => {
                     name="displayName"
                     defaultValue={currentUser.displayName}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 border text-black border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="mt-1 block w-full px-3 py-2 border text-black dark:text-white bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="photoURL" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="photoURL" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Profile Picture URL:
                   </label>
                   <input
@@ -381,7 +381,7 @@ const Profile = () => {
                     name="photoURL"
                     defaultValue={currentUser.photoURL}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 border text-black border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="mt-1 block w-full px-3 py-2 border text-black dark:text-white bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                     placeholder="https://example.com/profile.jpg"
                   />
                   {profileData.profilePhoto && (
@@ -392,7 +392,7 @@ const Profile = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="bio" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Bio:
                   </label>
                   <textarea
@@ -401,7 +401,7 @@ const Profile = () => {
                     defaultValue={profileData.bio}
                     onChange={handleInputChange}
                     rows="3"
-                    className="mt-1 block w-full px-3 py-2 border text-black border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="mt-1 block w-full px-3 py-2 border text-black dark:text-white bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                     placeholder="Tell us about yourself..."
                   />
                 </div>
@@ -428,18 +428,18 @@ const Profile = () => {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 mb-6">
+      <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
         <nav className="flex space-x-8">
           <button
             onClick={() => setActiveTab('stats')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${ activeTab === 'stats' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+            className={`py-4 px-1 border-b-2 font-medium text-sm ${ activeTab === 'stats' ? 'border-blue-500 text-blue-600 dark:text-blue-400 dark:border-blue-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-500'}`}
           >
             <FaChartBar className="inline-block mr-2" />
             Reading Statistics
           </button>
           <button
             onClick={() => setActiveTab('bookmarks')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${ activeTab === 'bookmarks' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+            className={`py-4 px-1 border-b-2 font-medium text-sm ${ activeTab === 'bookmarks' ? 'border-blue-500 text-blue-600 dark:text-blue-400 dark:border-blue-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-500'}`}
           >
             <FaBookmark className="inline-block mr-2" />
             Bookmarks ({bookmarks.length})
@@ -458,19 +458,19 @@ const Profile = () => {
           >
             {/* Doughnut Chart for Reading Status */}
             {stats.totalBooks > 0 ? (
-              <div className="bg-white rounded-lg shadow-md p-6 flex justify-center" style={{ height: '300px' }}>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex justify-center" style={{ height: '300px' }}>
                  <Doughnut data={pieChartData} options={pieChartOptions} /> {/* Changed Pie to Doughnut */}
               </div>
             ) : (
-               <div className="bg-white rounded-lg shadow-md p-6 col-span-full text-center">
-                   <p className="text-gray-600">Add books to see your reading status statistics.</p>
+               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 col-span-full text-center">
+                   <p className="text-gray-600 dark:text-gray-400">Add books to see your reading status statistics.</p>
                </div>
             )}
 
             {/* Other Stats - Can be displayed alongside the chart or below */}
-             <div className="bg-white rounded-lg shadow-md p-6">
+             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 dark:text-white">
               <h3 className="text-lg font-semibold mb-4">Activity & Engagement</h3>
-              <div className="space-y-4 text-gray-700">
+              <div className="space-y-4 text-gray-700 dark:text-gray-300">
                  <div className="flex justify-between items-center">
                     <span className="font-medium">Total Books:</span>
                     <span>{stats.totalBooks}</span>
@@ -499,7 +499,7 @@ const Profile = () => {
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
           >
             {bookmarks.length === 0 ? (
-              <p className="text-gray-500 col-span-full text-center">No bookmarked books yet</p>
+              <p className="text-gray-500 dark:text-gray-400 col-span-full text-center">No bookmarked books yet</p>
             ) : (
               bookmarks.map(book => (
                 <BookCard
@@ -521,4 +521,4 @@ const Profile = () => {
   );
 };
 
-export default Profile; 
+export default Profile;

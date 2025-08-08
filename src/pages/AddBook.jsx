@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { toast } from 'react-hot-toast';
 import { FaSpinner } from 'react-icons/fa';
 
@@ -121,13 +122,13 @@ const AddBook = () => {
       exit={{ opacity: 0 }}
       className="container mx-auto px-4 py-8"
     >
-      <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-3xl font-bold text-center mb-8 text-black">Add New Book</h1>
+      <div className="max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 dark:text-white">
+        <h1 className="text-3xl font-bold text-center mb-8 text-black dark:text-white">Add New Book</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Book Title */}
           <div>
-            <label htmlFor="bookTitle" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="bookTitle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Book Title *
             </label>
             <input
@@ -136,7 +137,7 @@ const AddBook = () => {
               name="bookTitle"
               value={formData.bookTitle}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border text-black dark:text-white bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter book title"
               required
             />
@@ -144,7 +145,7 @@ const AddBook = () => {
 
           {/* Author */}
           <div>
-            <label htmlFor="bookAuthor" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="bookAuthor" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Author *
             </label>
             <input
@@ -153,7 +154,7 @@ const AddBook = () => {
               name="bookAuthor"
               value={formData.bookAuthor}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border text-black dark:text-white bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter author name"
               required
             />
@@ -161,7 +162,7 @@ const AddBook = () => {
 
           {/* Category */}
           <div>
-            <label htmlFor="bookCategory" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="bookCategory" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Category *
             </label>
             <select
@@ -169,7 +170,7 @@ const AddBook = () => {
               name="bookCategory"
               value={formData.bookCategory}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border text-black dark:text-white bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             >
               <option value="">Select a category</option>
@@ -183,7 +184,7 @@ const AddBook = () => {
 
           {/* Total Pages */}
           <div>
-            <label htmlFor="totalPage" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="totalPage" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Total Pages *
             </label>
             <input
@@ -192,7 +193,7 @@ const AddBook = () => {
               name="totalPage"
               value={formData.totalPage}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border text-black dark:text-white bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter total number of pages"
               min="1"
               required
@@ -201,7 +202,7 @@ const AddBook = () => {
 
           {/* Book Overview */}
           <div>
-            <label htmlFor="bookOverview" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="bookOverview" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Book Overview *
             </label>
             <textarea
@@ -210,7 +211,7 @@ const AddBook = () => {
               value={formData.bookOverview}
               onChange={handleInputChange}
               rows="4"
-              className="w-full px-3 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border text-black dark:text-white bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter book overview"
               required
             />
@@ -218,7 +219,7 @@ const AddBook = () => {
 
           {/* Cover Image URL */}
           <div>
-            <label htmlFor="coverImageUrl" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="coverImageUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Cover Image URL *
             </label>
             <input
@@ -227,7 +228,7 @@ const AddBook = () => {
               name="coverImageUrl"
               value={formData.coverImageUrl}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border text-black dark:text-white bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter cover image URL (e.g., https://example.com/cover.jpg)"
               required
             />
@@ -240,7 +241,7 @@ const AddBook = () => {
 
           {/* Reading Status */}
           <div>
-            <label htmlFor="readingStatus" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="readingStatus" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Reading Status
             </label>
             <select
@@ -248,7 +249,7 @@ const AddBook = () => {
               name="readingStatus"
               value={formData.readingStatus}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border text-black dark:text-white bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="Want-to-Read">Want to Read</option>
               <option value="Reading">Reading</option>
@@ -281,4 +282,4 @@ const AddBook = () => {
   );
 };
 
-export default AddBook; 
+export default AddBook;

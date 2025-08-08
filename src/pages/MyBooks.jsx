@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { toast } from 'react-hot-toast';
 import { FaEdit, FaTrash, FaSpinner, FaBook, FaBookmark, FaHeart, FaChartBar } from 'react-icons/fa';
 import BookCard from '../components/BookCard';
@@ -11,6 +12,7 @@ import Modal from '../components/Modal';
 const MyBooks = () => {
   const navigate = useNavigate();
   const { currentUser, idToken } = useAuth();
+  const { isDarkMode } = useTheme();
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -179,10 +181,15 @@ const MyBooks = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="container mx-auto px-4 py-8"
+      className={`min-h-screen transition-colors duration-300 ${
+        isDarkMode ? 'bg-gray-950 text-white' : 'bg-white text-gray-900'
+      }`}
     >
+      <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-stone-950">My Books</h1>
+        <h1 className={`text-3xl font-bold ${
+          isDarkMode ? 'text-white' : 'text-gray-900'
+        }`}>My Books</h1>
         <button
           onClick={() => navigate('/add-book')}
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
@@ -194,11 +201,17 @@ const MyBooks = () => {
       {/* Filters and Sort */}
       <div className="flex flex-wrap gap-4 mb-6">
         <div className="flex items-center space-x-2">
-          <label className="text-sm font-medium text-gray-700">Filter:</label>
+          <label className={`text-sm font-medium ${
+            isDarkMode ? 'text-gray-300' : 'text-gray-700'
+          }`}>Filter:</label>
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="rounded-md text-black px-4 py-2 border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className={`rounded-md px-4 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 ${
+              isDarkMode 
+                ? 'bg-gray-800 text-white border-gray-600' 
+                : 'bg-white text-gray-900 border-gray-300'
+            }`}
           >
             <option value="all">All Books</option>
             <option value="Reading">Reading</option>
@@ -208,11 +221,17 @@ const MyBooks = () => {
         </div>
 
         <div className="flex items-center space-x-2">
-          <label className="text-sm  font-medium text-gray-700">Sort by:</label>
+          <label className={`text-sm font-medium ${
+            isDarkMode ? 'text-gray-300' : 'text-gray-700'
+          }`}>Sort by:</label>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="rounded-md border-gray-500 text-black px-4 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            className={`rounded-md px-4 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500 ${
+              isDarkMode 
+                ? 'bg-gray-800 text-white border-gray-600' 
+                : 'bg-white text-gray-900 border-gray-300'
+            }`}
           >
             <option value="recent">Most Recent</option>
             <option value="title">Title</option>
@@ -223,7 +242,9 @@ const MyBooks = () => {
 
       {/* Books Grid */}
       {sortedBooks.length === 0 ? (
-        <div className="text-center text-gray-500 mt-8">
+        <div className={`text-center mt-8 ${
+          isDarkMode ? 'text-gray-400' : 'text-gray-500'
+        }`}>
           No books found. Add your first book!
         </div>
       ) : (
@@ -282,7 +303,9 @@ const MyBooks = () => {
         title="Delete Book"
       >
         <div className="p-4">
-          <p className="text-gray-700 mb-4">
+          <p className={`mb-4 ${
+            isDarkMode ? 'text-gray-300' : 'text-gray-700'
+          }`}>
             Are you sure you want to delete "{bookToDelete?.bookTitle}"? This action cannot be undone.
           </p>
           <div className="flex justify-end space-x-3">
@@ -291,7 +314,11 @@ const MyBooks = () => {
                 setIsDeleteModalOpen(false);
                 setBookToDelete(null);
               }}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+              className={`px-4 py-2 text-sm font-medium rounded-md ${
+                isDarkMode 
+                  ? 'text-gray-300 bg-gray-700 hover:bg-gray-600' 
+                  : 'text-gray-700 bg-gray-100 hover:bg-gray-200'
+              }`}
             >
               Cancel
             </button>
@@ -304,6 +331,7 @@ const MyBooks = () => {
           </div>
         </div>
       </Modal>
+      </div>
     </motion.div>
   );
 };

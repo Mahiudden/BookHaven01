@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTheme } from '../context/ThemeContext';
 import { FaGoogle, FaEnvelope, FaLock } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -8,6 +9,7 @@ import Toast from '../components/Toast';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
   const location = useLocation();
   const { login, loginWithGoogle } = useAuth();
   const [formData, setFormData] = useState({
@@ -72,19 +74,23 @@ const Login = () => {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8"
+      className={`min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300 ${
+        isDarkMode ? 'bg-secondary-900 text-gray-100' : 'bg-gray-50 text-gray-900'
+      }`}
     >
-      <div className="max-w-md w-full space-y-8">
+      <div className={`w-full max-w-md rounded-2xl p-8 shadow-xl border space-y-6 ${
+        isDarkMode ? 'bg-secondary-800/60 border-gray-700 backdrop-blur-sm' : 'bg-white/60 border-gray-200 backdrop-blur-sm'
+      }`}>
         {/* Header */}
         <div className="text-center">
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+          <h2 className={`mt-6 text-3xl font-extrabold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
             Welcome back
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className={`mt-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             Don't have an account?{' '}
             <Link
               to="/register"
-              className="font-medium text-blue-600 hover:text-blue-500"
+              className="font-medium text-blue-400 hover:text-blue-300"
             >
               Sign up
             </Link>
@@ -95,22 +101,17 @@ const Login = () => {
         <div className="grid grid-cols-1 gap-3">
           <button
             onClick={() => handleSocialLogin('google')}
-            className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className={`w-full flex items-center justify-center px-4 py-2 rounded-lg shadow-sm text-sm font-medium transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${isDarkMode ? 'border border-gray-600 text-gray-100 bg-secondary-800 hover:bg-secondary-700' : 'border border-gray-300 text-gray-700 bg-white hover:bg-gray-50'}`}
           >
             <FaGoogle className="w-5 h-5 mr-2 text-red-500" />
             Sign in with Google
           </button>
         </div>
 
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300" />
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-gray-50 text-gray-500">
-              Or continue with
-            </span>
-          </div>
+        <div className="flex items-center gap-3">
+          <div className={`flex-1 h-px ${isDarkMode ? 'bg-gray-700' : 'bg-gray-300'}`} />
+          <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Or continue with</span>
+          <div className={`flex-1 h-px ${isDarkMode ? 'bg-gray-700' : 'bg-gray-300'}`} />
         </div>
 
         {/* Login Form */}
@@ -121,7 +122,7 @@ const Login = () => {
                 Email address
               </label>
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaEnvelope className="h-5 w-5 text-gray-400" />
+                <FaEnvelope className={`h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-400'}`} />
               </div>
               <input
                 id="email"
@@ -131,7 +132,7 @@ const Login = () => {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className={`appearance-none rounded-none relative block w-full px-3 py-2 pl-10 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm ${isDarkMode ? 'border-gray-600 bg-secondary-800 placeholder-gray-400 text-gray-100' : 'border-gray-300 bg-white placeholder-gray-500 text-gray-900'}`}
                 placeholder="Email address"
               />
             </div>
@@ -140,7 +141,7 @@ const Login = () => {
                 Password
               </label>
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaLock className="h-5 w-5 text-gray-400" />
+                <FaLock className={`h-5 w-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-400'}`} />
               </div>
               <input
                 id="password"
@@ -150,7 +151,7 @@ const Login = () => {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className={`appearance-none rounded-none relative block w-full px-3 py-2 pl-10 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm ${isDarkMode ? 'border-gray-600 bg-secondary-800 placeholder-gray-400 text-gray-100' : 'border-gray-300 bg-white placeholder-gray-500 text-gray-900'}`}
                 placeholder="Password"
               />
             </div>
@@ -162,11 +163,11 @@ const Login = () => {
                 id="remember-me"
                 name="remember-me"
                 type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className={`h-4 w-4 text-blue-600 focus:ring-blue-500 rounded ${isDarkMode ? 'border-gray-600 bg-secondary-800' : 'border-gray-300'}`}
               />
               <label
                 htmlFor="remember-me"
-                className="ml-2 block text-sm text-gray-900"
+                className={`ml-2 block text-sm ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}
               >
                 Remember me
               </label>
@@ -175,7 +176,7 @@ const Login = () => {
             <div className="text-sm">
               <Link
                 to="/forgot-password"
-                className="font-medium text-blue-600 hover:text-blue-500"
+                className="font-medium text-blue-400 hover:text-blue-300"
               >
                 Forgot your password?
               </Link>
@@ -186,7 +187,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`group relative w-full flex justify-center py-2.5 px-4 text-sm font-semibold rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700`}
             >
               {isLoading ? (
                 <LoadingSpinner size="sm" className="text-white" />

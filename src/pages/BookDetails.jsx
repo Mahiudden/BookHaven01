@@ -373,9 +373,9 @@ const BookDetails = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="container mx-auto px-4 py-8"
+      className="container mx-auto px-4 py-8 dark:text-white"
     >
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-10 bg-white rounded-lg shadow-xl p-8 mb-8 border border-gray-200">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-10 bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8 mb-8 border border-gray-200 dark:border-gray-700">
         <div className="md:col-span-1 flex justify-center items-start">
           <div className="relative w-full max-w-xs">
              <img
@@ -386,8 +386,8 @@ const BookDetails = () => {
           </div>
         </div>
         <div className="md:col-span-2 flex flex-col justify-center">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-4 break-words">{book.bookTitle}</h1>
-          <p className="text-xl lg:text-2xl text-gray-700 font-medium mb-4">by <span className="font-semibold text-gray-800">{book.bookAuthor}</span></p>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white mb-4 break-words">{book.bookTitle}</h1>
+          <p className="text-xl lg:text-2xl text-gray-700 dark:text-gray-300 font-medium mb-4">by <span className="font-semibold text-gray-800 dark:text-white">{book.bookAuthor}</span></p>
 
           {book.bookCategory && (
           <div>
@@ -404,7 +404,7 @@ const BookDetails = () => {
              </div>
           )}
 
-          <p className="text-gray-600 leading-relaxed mt-4 mb-6">{book.bookOverview || 'No overview available.'}</p>
+          <p className="text-gray-600 dark:text-gray-400 leading-relaxed mt-4 mb-6">{book.bookOverview || 'No overview available.'}</p>
 
           <div className="flex flex-wrap items-center gap-4 mt-6">
              {/* Upvote Section */}
@@ -462,21 +462,21 @@ const BookDetails = () => {
 
           {/* Uploader Info */}
           {book.userName && (
-            <div className="mt-6 pt-4 border-t border-gray-200">
-              <h4 className="text-lg font-semibold text-gray-800 mb-2">Uploaded by</h4>
-              <p className="text-gray-600">Name: {book.userName}</p>
+            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <h4 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">Uploaded by</h4>
+              <p className="text-gray-600 dark:text-gray-400">Name: {book.userName}</p>
               {book.userEmail && (
-                <p className="text-gray-600">Email: {book.userEmail}</p>
+                <p className="text-gray-600 dark:text-gray-400">Email: {book.userEmail}</p>
               )}
             </div>
           )}
 
           {/* Show reading status section for all books */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200 shadow-inner">
+          <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 shadow-inner">
             {currentUser && book.userEmail === currentUser.email ? (
               // For user's own books, show update options
               <>
-                <h4 className="font-semibold text-gray-800 mb-3">Update Reading Status:</h4>
+                <h4 className="font-semibold text-gray-800 dark:text-white mb-3">Update Reading Status:</h4>
                 <div className="flex flex-wrap items-center gap-3">
                    <button
                      onClick={() => handleStatusChange('Reading')}
@@ -522,7 +522,7 @@ const BookDetails = () => {
               // For other users' books, just show the status if it exists
               <>
                <div className='flex items-center text-center gap-3'>
-                <h4 className="font-semibold text-gray-800">Reading Status:</h4>
+                <h4 className="font-semibold text-gray-800 dark:text-white">Reading Status:</h4>
                 {book.readingStatus ? (
                   <span className={`px-4 py-2 rounded-full text-sm font-medium ${
                     book.readingStatus === 'Reading' ? 'bg-blue-600 text-white' :
@@ -532,7 +532,7 @@ const BookDetails = () => {
                     {book.readingStatus}
                   </span>
                 ) : (
-                  <span className="text-gray-500 text-sm">No reading status set</span>
+                  <span className="text-gray-500 dark:text-gray-400 text-sm">No reading status set</span>
                 )}
                </div>
               </>
@@ -542,8 +542,8 @@ const BookDetails = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-8 border border-gray-200">
-         <h2 className="text-2xl font-bold text-gray-900 mb-4">Reviews</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8 border border-gray-200 dark:border-gray-700">
+         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Reviews</h2>
 
           {currentUser === null && (
              <div className="mb-6 pb-4 border-b border-gray-200">
@@ -575,14 +575,14 @@ const BookDetails = () => {
                   transition={{ duration: 0.3 }}
                   className="mb-6 pb-6 border-b border-gray-200"
               >
-                  <h3 className="text-xl font-semibold text-gray-800 mb-4">Write Your Review</h3>
+                  <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">Write Your Review</h3>
                   <form onSubmit={handleReviewSubmit} className="space-y-4">
           <div>
-                          <label htmlFor="rating" className="block text-sm font-medium text-gray-700">Your Rating</label>
+                          <label htmlFor="rating" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Your Rating</label>
                           <Rating value={userRating} onChange={(rating) => setUserRating(rating)} size="lg" />
           </div>
           <div>
-                          <label htmlFor="reviewText" className="block text-sm font-medium text-gray-700">Your Review</label>
+                          <label htmlFor="reviewText" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Your Review</label>
             <textarea
                               id="reviewText"
               rows="4"
@@ -613,7 +613,7 @@ const BookDetails = () => {
           )}
 
          {reviews.length === 0 ? (
-            <p className="text-gray-600">No reviews yet. Be the first to write one!</p>
+            <p className="text-gray-600 dark:text-gray-400">No reviews yet. Be the first to write one!</p>
           ) : (
             <div className="space-y-6">
               {reviews.map(review => (
@@ -632,8 +632,8 @@ const BookDetails = () => {
       </div>
 
       {book.similarBooks && book.similarBooks.length > 0 && (
-           <div className="bg-white rounded-lg shadow-lg p-6 mb-8 border border-gray-200">
-             <h2 className="text-2xl font-bold text-gray-900 mb-4">Similar Books</h2>
+           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8 border border-gray-200 dark:border-gray-700">
+             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Similar Books</h2>
              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
                {book.similarBooks.map((relatedBook) => {
                   // Prioritize the book's own readingStatus if available

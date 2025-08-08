@@ -2,20 +2,22 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { FaSpinner, FaSort, FaFilter, FaSearch } from 'react-icons/fa';
+import { FaSpinner, FaSort, FaFilter, FaSearch, FaBook, FaStar, FaHeart, FaEye } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import BookCard from '../components/BookCard';
 import SearchBar from '../components/SearchBar';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import debounce from 'lodash/debounce';
 
 const sortOptions = [
   { label: 'Newest First', value: 'newest' },
   { label: 'Oldest First', value: 'oldest' },
   { label: 'Most Popular', value: 'popular' },
-  // { label: 'Highest Rated', value: 'rating' },
   { label: 'Title A-Z', value: 'title_asc' },
-  { label: 'Title Z-A', value: 'title_desc' }
+  { label: 'Title Z-A', value: 'title_desc' },
+  { label: 'Rating: High to Low', value: 'rating_desc' },
+  { label: 'Rating: Low to High', value: 'rating_asc' }
 ];
 
 const filterOptions = {
@@ -50,6 +52,7 @@ const filterOptions = {
 const Bookshelf = () => {
   const navigate = useNavigate();
   const { currentUser, idToken } = useAuth();
+  const { isDarkMode } = useTheme();
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -68,35 +71,21 @@ const Bookshelf = () => {
   const [bookmarkedBooks, setBookmarkedBooks] = useState([]);
 
   useEffect(() => {
-    // Fetch public books for Bookshelf, or user's books for My Books
     fetchBooks();
-    // Fetch bookmarked books only if logged in
     fetchBookmarkedBooks();
   }, [currentPage, filters, sortBy, currentUser, idToken]);
 
-  // Effect to handle redirection and state reset on logout
   useEffect(() => {
-    if (!currentUser && !loading) { // Check if currentUser is null and initial loading is done
-      // This effect should primarily handle redirection *away* from protected pages like /my-books
-      // if the user logs out.
-
-      // Redirect to login ONLY if on /my-books and currentUser becomes null
+    if (!currentUser && !loading) {
       if (window.location.pathname === '/my-books') {
          navigate('/login');
       }
-      // For /bookshelf, just reset states if currentUser becomes null (though fetchBooks should handle public view)
-      if (window.location.pathname === '/bookshelf' && books.length > 0 && bookmarkedBooks.length > 0) { // Prevent unnecessary resets on initial load
+      if (window.location.pathname === '/bookshelf' && books.length > 0 && bookmarkedBooks.length > 0) {
          setBooks([]);
          setBookmarkedBooks([]);
-         // Optionally reset other filters/pagination if needed, but fetchBooks should refresh
-         // setFilters({ status: 'all', category: 'All', readingStatus: 'all' });
-         // setSortBy('newest');
-         // setCurrentPage(1);
-         // setTotalPages(1);
-         // setTotalBooks(0);
       }
     }
-  }, [currentUser, loading, navigate, window.location.pathname]); // Add window.location.pathname to dependencies
+  }, [currentUser, loading, navigate, window.location.pathname]);
 
   const fetchBooks = async () => {
     try {
@@ -110,7 +99,6 @@ const Bookshelf = () => {
         readingStatus: filters.readingStatus === 'all' ? '' : filters.readingStatus
       });
 
-      // Add userEmail parameter if we're on the My Books page
       if (window.location.pathname === '/my-books' && currentUser) {
         queryParams.append('userEmail', currentUser.email);
       }
@@ -143,7 +131,6 @@ const Bookshelf = () => {
     }
   };
 
-  // Create a debounced search function
   const debouncedSearch = useCallback(
     debounce(async (query) => {
       if (!query.trim()) {
@@ -165,14 +152,12 @@ const Bookshelf = () => {
       } finally {
         setIsSearching(false);
       }
-    }, 500), // 500ms delay
-    [] // Empty dependency array since we don't want to recreate this function
+    }, 500),
+    []
   );
 
-  // Effect to trigger search when searchQuery changes
   useEffect(() => {
     debouncedSearch(searchQuery);
-    // Cleanup function to cancel any pending debounced calls
     return () => {
       debouncedSearch.cancel();
     };
@@ -268,15 +253,28 @@ const Bookshelf = () => {
   if (loading && !isSearching) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <FaSpinner className="animate-spin text-4xl text-blue-500" />
+        <div className="text-center">
+          <FaSpinner className="animate-spin text-4xl text-primary-500 mx-auto mb-4" />
+          <p className={`text-lg ${
+            isDarkMode ? 'text-secondary-300' : 'text-secondary-600'
+          }`}>
+            Loading books...
+          </p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center text-red-500 mt-8">
-        {error}
+      <div className="text-center py-12">
+        <div className="text-red-500 text-lg mb-4">{error}</div>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-300"
+        >
+          Try Again
+        </button>
       </div>
     );
   }
@@ -286,13 +284,21 @@ const Bookshelf = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="container mx-auto px-4 py-8"
+      className={`min-h-screen transition-colors duration-300 ${
+        isDarkMode ? 'bg-gray-950 text-white' : 'bg-white text-gray-900'
+      }`}
     >
+      <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">Bookshelf</h1>
-        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-          <div className="w-full md:w-96">
+        <h1 className="text-3xl font-bold mb-4">Bookshelf</h1>
+        <p className={`text-lg mb-6 ${
+          isDarkMode ? 'text-secondary-300' : 'text-secondary-600'
+        }`}>
+          Discover and explore our vast collection of books
+        </p>
+        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+          <div className="w-full lg:w-96">
             <SearchBar
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -300,81 +306,172 @@ const Bookshelf = () => {
               isLoading={isSearching}
             />
           </div>
-          {/* Updated Filter and Sort controls with improved styling */}
+          
           <div className="flex flex-wrap items-center gap-4">
-            {/* Reading Status Filter Dropdown */}
+            {/* Quick Reading Status Filter */}
             <div className="relative">
-              <label htmlFor="reading-status-filter" className="sr-only">Reading Status</label>
               <select
-                id="reading-status-filter"
                 value={filters.readingStatus}
                 onChange={(e) => handleFilterChange('readingStatus', e.target.value)}
-                className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-colors cursor-pointer"
+                className={`block appearance-none px-4 py-2 pr-8 rounded-lg border transition-colors duration-300 ${
+                  isDarkMode 
+                    ? 'border-secondary-600 bg-secondary-800 text-secondary-300 focus:border-primary-500' 
+                    : 'border-secondary-300 bg-white text-secondary-700 focus:border-primary-500'
+                }`}
               >
-                <option value="all">All Reading Status</option>
-                {filterOptions.status.filter(status => status.value !== 'all').map(status => (
+                {filterOptions.status.map((status) => (
                   <option key={status.value} value={status.value}>
                     {status.label}
                   </option>
                 ))}
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-              </div>
             </div>
-            {/* Category Filter Dropdown */}
-              <div className="relative">
-                 <label htmlFor="category-filter" className="sr-only">Category</label>
-                 <select
-                   id="category-filter"
-                   value={filters.category}
-                   onChange={(e) => handleFilterChange('category', e.target.value)}
-                   className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-colors cursor-pointer"
-                 >
-                   <option value="">All Categories</option>
-                   {filterOptions.category.filter(cat => cat !== 'All').map(category => (
-                     <option key={category} value={category}>
-                       {category}
-                     </option>
-                   ))}
-                 </select>
-                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-                 </div>
-              </div>
+            {/* Filter Toggle */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center px-4 py-2 rounded-lg border transition-colors duration-300 ${
+                isDarkMode 
+                  ? 'border-secondary-600 text-secondary-300 hover:bg-secondary-700' 
+                  : 'border-secondary-300 text-secondary-700 hover:bg-secondary-100'
+              }`}
+            >
+              <FaFilter className="mr-2" />
+              Filters
+            </button>
+
             {/* Sort Dropdown */}
             <div className="relative">
-               <label htmlFor="sort-by" className="sr-only">Sort By</label>
-               <select
-                 id="sort-by"
-                 value={sortBy}
-                 onChange={(e) => handleSortChange(e.target.value)}
-                 className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-colors cursor-pointer"
-               >
-                 {sortOptions.map(option => (
-                   <option key={option.value} value={option.value}>
-                     {option.label}
-                   </option>
-                 ))}
-               </select>
-               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                 <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-               </div>
+              <select
+                value={sortBy}
+                onChange={(e) => handleSortChange(e.target.value)}
+                className={`block appearance-none px-4 py-2 pr-8 rounded-lg border transition-colors duration-300 ${
+                  isDarkMode 
+                    ? 'border-secondary-600 bg-secondary-800 text-secondary-300 focus:border-primary-500' 
+                    : 'border-secondary-300 bg-white text-secondary-700 focus:border-primary-500'
+                }`}
+              >
+                {sortOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2">
+                <FaSort className="h-4 w-4" />
+              </div>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Filter Panel */}
+      <AnimatePresence>
+        {showFilters && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className={`mb-6 p-6 rounded-lg border ${
+              isDarkMode 
+                ? 'border-secondary-700 bg-secondary-800' 
+                : 'border-secondary-200 bg-secondary-50'
+            }`}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Reading Status Filter */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${
+                  isDarkMode ? 'text-secondary-300' : 'text-secondary-700'
+                }`}>
+                  Reading Status
+                </label>
+                <select
+                  value={filters.readingStatus}
+                  onChange={(e) => handleFilterChange('readingStatus', e.target.value)}
+                  className={`w-full px-3 py-2 rounded-lg border transition-colors duration-300 ${
+                    isDarkMode 
+                      ? 'border-secondary-600 bg-secondary-700 text-secondary-300' 
+                      : 'border-secondary-300 bg-white text-secondary-700'
+                  }`}
+                >
+                  {filterOptions.status.map(status => (
+                    <option key={status.value} value={status.value}>
+                      {status.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Category Filter */}
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${
+                  isDarkMode ? 'text-secondary-300' : 'text-secondary-700'
+                }`}>
+                  Category
+                </label>
+                <select
+                  value={filters.category}
+                  onChange={(e) => handleFilterChange('category', e.target.value)}
+                  className={`w-full px-3 py-2 rounded-lg border transition-colors duration-300 ${
+                    isDarkMode 
+                      ? 'border-secondary-600 bg-secondary-700 text-secondary-300' 
+                      : 'border-secondary-300 bg-white text-secondary-700'
+                  }`}
+                >
+                  {filterOptions.category.map(category => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              
+
+              {/* Clear Filters */}
+              <div className="flex items-end">
+                <button
+                  onClick={() => {
+                    setFilters({
+                      status: 'all',
+                      category: 'All',
+                      readingStatus: 'all'
+                    });
+                    setSortBy('newest');
+                  }}
+                  className={`w-full px-4 py-2 rounded-lg border transition-colors duration-300 ${
+                    isDarkMode 
+                      ? 'border-secondary-600 text-secondary-300 hover:bg-secondary-700' 
+                      : 'border-secondary-300 text-secondary-700 hover:bg-secondary-100'
+                  }`}
+                >
+                  Clear Filters
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Books Grid */}
       <div className="mb-8">
         {books.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500">No books found</p>
+            <FaBook className="text-6xl text-secondary-400 mx-auto mb-4" />
+            <p className={`text-lg ${
+              isDarkMode ? 'text-secondary-400' : 'text-secondary-600'
+            }`}>
+              No books found
+            </p>
+            <p className={`text-sm mt-2 ${
+              isDarkMode ? 'text-secondary-500' : 'text-secondary-500'
+            }`}>
+              Try adjusting your search or filter criteria
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {books.map((book) => {
-              // Prioritize the book's own readingStatus if available
               const readingStatus = book.readingStatus || (bookmarkedBooks.find(b => b._id === book._id)?.readingStatus || '');
 
               return (
@@ -396,31 +493,43 @@ const Bookshelf = () => {
 
       {/* Pagination */}
       {totalPages > 1 && !searchQuery && (
-        <div className="flex justify-center items-center gap-2">
+        <div className="flex justify-center items-center gap-2 mb-8">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`px-4 py-2 rounded-lg border transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
+              isDarkMode 
+                ? 'border-secondary-600 bg-secondary-800 text-secondary-300 hover:bg-secondary-700' 
+                : 'border-secondary-300 bg-white text-secondary-700 hover:bg-secondary-100'
+            }`}
           >
             Previous
           </button>
+          
           {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
             <button
               key={page}
               onClick={() => handlePageChange(page)}
-              className={`px-4 py-2 rounded-lg ${
+              className={`px-4 py-2 rounded-lg transition-colors duration-300 ${
                 currentPage === page
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white border border-gray-300 hover:bg-gray-50'
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  ? 'bg-primary-600 text-white'
+                  : isDarkMode 
+                    ? 'border border-secondary-600 bg-secondary-800 text-secondary-300 hover:bg-secondary-700'
+                    : 'border border-secondary-300 bg-white text-secondary-700 hover:bg-secondary-100'
+              }`}
             >
               {page}
             </button>
           ))}
+          
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`px-4 py-2 rounded-lg border transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
+              isDarkMode 
+                ? 'border-secondary-600 bg-secondary-800 text-secondary-300 hover:bg-secondary-700' 
+                : 'border-secondary-300 bg-white text-secondary-700 hover:bg-secondary-100'
+            }`}
           >
             Next
           </button>
@@ -429,10 +538,13 @@ const Bookshelf = () => {
 
       {/* Results Summary */}
       {!searchQuery && (
-        <div className="text-center text-gray-500 mt-4">
+        <div className={`text-center ${
+          isDarkMode ? 'text-secondary-400' : 'text-secondary-500'
+        }`}>
           Showing {books.length} of {totalBooks} books
         </div>
       )}
+      </div>
     </motion.div>
   );
 };

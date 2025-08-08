@@ -1,7 +1,9 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import  {useLocation}  from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Toaster } from 'react-hot-toast';
+import { useTheme } from './context/ThemeContext';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -15,6 +17,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import EditBook from './pages/EditBook';
+// import Search from './pages/Search';
 // import About from './pages/About';
 // import Contact from './pages/Contact';
 // import Terms from './pages/Terms';
@@ -24,8 +27,9 @@ import Toast from './components/Toast';
 
 import ProtectedRoute from './components/ProtectedRoute';
 
-function App() {
+function AppContent() {
   const location = useLocation();
+  const { isDarkMode } = useTheme();
 
   const pageVariants = {
     initial: {
@@ -49,7 +53,9 @@ function App() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className={`flex flex-col min-h-screen transition-colors duration-300 ${
+      isDarkMode ? 'dark bg-secondary-900 text-white' : 'bg-white text-secondary-900'
+    }`}>
       <Navbar />
       <main className="flex-grow">
         <AnimatePresence mode="wait">
@@ -82,6 +88,7 @@ function App() {
                 </motion.div>
               }
             />
+            {/* Search page removed; navbar search provides instant results */}
             <Route
               path="/book/:id"
               element={
@@ -237,7 +244,26 @@ function App() {
         </AnimatePresence>
       </main>
       <Footer />
-      </div>
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: isDarkMode ? '#1e293b' : '#ffffff',
+            color: isDarkMode ? '#ffffff' : '#1e293b',
+            border: `1px solid ${isDarkMode ? '#475569' : '#e2e8f0'}`,
+          },
+        }}
+      />
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
   );
 }
 
