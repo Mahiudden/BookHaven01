@@ -2,7 +2,7 @@
 
 This is the frontend application for the Virtual Bookshelf project, built with React and Tailwind CSS.
 
-## live url: https://my-assinment11.web.app/
+## live url: https://bookhaven02.netlify.app/
 
 ## Features
 
