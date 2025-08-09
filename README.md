@@ -17,6 +17,7 @@ This is the frontend application for the Virtual Bookshelf project, built with R
 
 ## Technologies Used
 
+
 - **React:** JavaScript library for building user interfaces.
 - **Tailwind CSS:** A utility-first CSS framework for styling.
 - **React Router DOM:** For handling navigation.
