@@ -27,7 +27,6 @@ This is the frontend application for the Virtual Bookshelf project, built with R
 
 ## Setup
 
-
 Follow these steps to get the frontend application running locally.
 
 ### Prerequisites
